@@ -1,0 +1,50 @@
+﻿{
+    "leftPanel": {
+        "dropdowns": {
+            "proxySettings": "НАСТРОЙКИ ПРОКСИ",
+            "presets": "ПРЕСЕТЫ"
+        },
+        "presets": {
+            "proxyAll": "VPN ДЛЯ ВСЕХ САЙТОВ",
+            "proxyExceptRussia": "VPN ДЛЯ ВСЕХ САЙТОВ, КРОМЕ РОССИИ",
+            "proxyExceptBlocked": "VPN ДЛЯ САЙТОВ ИЗ БАЗЫ 'ЗАБЛОКИРОВАННЫХ'"
+        },
+        "buttons": {
+            "ads": "БЛОКИРОВАТЬ РЕКЛАМУ, АНАЛИТИКУ И ТРЕКЕРЫ",
+            "newConfig": "НОВЫЙ КОНФИГ"
+        }
+    },
+    "centerPanel": {
+        "buttons": {
+            "browse": "ОБЗОР",
+            "generate": "СГЕНЕРИРОВАТЬ",
+            "appendToFile": "ДОБАВИТЬ VPSs В ФАЙЛ",
+            "save": "СОХРАНИТЬ"
+        },
+        "textBoxes": {
+            "browse": "ПУТЬ К ФАЙЛУ С VLESS КЛЮЧАМИ",
+            "vless": "VLESS КЛЮЧИ",
+            "result": "РЕЗУЛЬТАТ ГЕНЕРАЦИИ",
+            "save": "ПАПКА ДЛЯ СОХРАНЕНИЯ"
+        }
+    },
+    "rightPanel": {
+        "buttons": {
+            "newServers": "НОВЫЕ",
+            "myServers": "МОИ",
+            "deleteServer": "УДАЛИТЬ",
+            "connectRouter": "ПОДКЛЮЧИТЬСЯ К РОУТЕРУ",
+            "backup": "БЭКАП МОЕГО КОНФИГА",
+            "replace": "ЗАМЕНИТЬ КОНФИГ"
+        },
+        "panels": {
+            "serversPanel": "СЕРВЕРЫ"
+        }
+    },
+    "infoPanel": {
+        "description": "ОПИСАНИЕ",
+        "author": "by spinepith",
+        "version": "version 0.1",
+        "checkUpdates": "ПРОВЕРИТЬ ОБНОВЛЕНИЯ"
+    }
+}

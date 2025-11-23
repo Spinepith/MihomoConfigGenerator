@@ -1,0 +1,24 @@
+﻿<Application xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             x:Class="MihomoProxyGenerator.App"
+             RequestedThemeVariant="Light">
+             <!-- "Default" ThemeVariant follows system theme variant. "Dark" or "Light" are other available options. -->
+
+    <Application.Styles>
+        <FluentTheme />
+        <StyleInclude Source="avares://MihomoProxyGenerator/Styles/CustomStyles.axaml"/>
+        <StyleInclude Source="avares://MihomoProxyGenerator/Themes/DropdownPanel.axaml"/>
+        <StyleInclude Source="avares://MihomoProxyGenerator/Themes/TextLabel.axaml"/>
+        <StyleInclude Source="avares://MihomoProxyGenerator/Themes/LabeledPanel.axaml"/>
+        <StyleInclude Source="avares://MihomoProxyGenerator/Themes/InfoPanel.axaml"/>
+        <StyleInclude Source="avares://MihomoProxyGenerator/Themes/SwitchButton.axaml"/>
+
+        <Style Selector="Window">
+            <Setter Property="Icon">
+                <Setter.Value>
+                    <WindowIcon>avares://MihomoProxyGenerator/Assets/star.png</WindowIcon>
+                </Setter.Value>
+            </Setter>
+        </Style>
+    </Application.Styles>
+</Application>

@@ -1,0 +1,63 @@
+﻿<Styles xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:controls="using:MihomoProxyGenerator.Controls">
+  
+    <Design.PreviewWith>
+        <Border Padding="20">
+            <controls:DropdownPanel ButtonText="Preview" IsOpen="True" CornerRadius="3">
+                <TextBlock Text="Россия"/>
+            </controls:DropdownPanel>
+        </Border>
+    </Design.PreviewWith>
+ 
+  <Style Selector="controls|DropdownPanel">
+    <Setter Property="Template">
+      <ControlTemplate>
+          <Border CornerRadius="{TemplateBinding CornerRadius}" ClipToBounds="True">
+			  <Grid x:Name="PART_MainGrid" RowDefinitions="Auto, *" HorizontalAlignment="Stretch" RowSpacing="3">
+                  <ToggleButton Grid.Row="0"
+                                x:Name="PART_Button"
+                                IsChecked="{Binding IsOpen, RelativeSource={RelativeSource TemplatedParent}}"
+                                Background="#6A70E0"
+                                Foreground="White"
+                                HorizontalAlignment="Stretch"
+                                HorizontalContentAlignment="Stretch"
+                                VerticalContentAlignment="Center">
+                        <Grid ColumnDefinitions="*, Auto, *"
+                              HorizontalAlignment="Stretch"
+                              Width="{Binding RelativeSource={RelativeSource AncestorType=ToggleButton}, Path=Bounds.Width}">
+                      
+                              <TextBlock Grid.Column="0"
+                                         x:Name="leftArrow"
+                                         Text="↓"
+                                         Opacity=".2"
+                                         HorizontalAlignment="Left"
+                                         VerticalAlignment="Center"
+                                         Margin="4, 0"/>
+                              
+                              <TextBlock Grid.Column="1"
+                                         Text="{TemplateBinding ButtonText}"
+                                         TextWrapping="Wrap"
+                                         HorizontalAlignment="Center"
+                                         VerticalAlignment="Center"/>
+                              
+                              <TextBlock Grid.Column="2"
+                                         x:Name="rightArrow"
+                                         Text="↓"
+                                         Opacity=".2"
+                                         HorizontalAlignment="Right"
+                                         VerticalAlignment="Center"
+                                         Margin="4, 0"/>
+                          </Grid>
+                  </ToggleButton>
+                  <ContentPresenter Grid.Row="1"
+                                    Content="{TemplateBinding DropdownContent}"
+                                    IsVisible="{Binding IsOpen, RelativeSource={RelativeSource TemplatedParent}}"
+                                    HorizontalAlignment="Stretch"
+                                    Padding="6"/>
+              </Grid>
+          </Border>
+      </ControlTemplate>
+    </Setter>
+  </Style>
+</Styles>

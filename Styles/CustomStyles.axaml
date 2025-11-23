@@ -1,0 +1,159 @@
+﻿<Styles xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:controls="using:MihomoProxyGenerator.Controls">
+
+    <Style Selector="Button:disabled /template/ ContentPresenter">
+        <Setter Property="Foreground" Value="White"/>
+    </Style>
+
+    <Style Selector="Button:pointerover /template/ ContentPresenter">
+        <Setter Property="TextBlock.Foreground" Value="White"/>
+    </Style>
+
+    <Style Selector="Button:pressed">
+        <Setter Property="RenderTransform" Value="scale(1)"/>
+    </Style>
+
+    <Style Selector="Button:pressed /template/ ContentPresenter">
+        <Setter Property="TextBlock.Foreground" Value="White"/>
+    </Style>
+
+    <Style Selector="Border:pointerover">
+        <Setter Property="Background" Value="#6A70E0"/>
+    </Style>
+
+    <Style Selector="ToggleButton:pressed">
+        <Setter Property="RenderTransform" Value="scale(1)"/>
+    </Style>
+
+    <Style Selector="ToggleButton:pointerover /template/ ContentPresenter">
+        <Setter Property="Foreground" Value="White"/>
+    </Style>
+
+    <Style Selector="ToggleButton:disabled">
+        <Setter Property="Background" Value="#7075CC"/>
+    </Style>
+
+
+    <Style Selector="TextBox">
+        <Setter Property="Template">
+            <ControlTemplate>
+                <Border Name="border"
+                        Background="{TemplateBinding Background}"
+                        BorderBrush="{TemplateBinding BorderBrush}"
+                        BorderThickness="{TemplateBinding BorderThickness}"
+                        CornerRadius="3">
+                    <ScrollViewer Name="PART_ScrollViewer"
+                                  Background="Transparent"
+                                  BorderThickness="0"
+                                  Padding="{TemplateBinding Padding}">
+                        <TextPresenter Name="PART_TextPresenter"
+                                       Text="{TemplateBinding Text}"
+                                       Foreground="White"
+                                       CaretBrush="White"
+                                       TextWrapping="{TemplateBinding TextWrapping}"
+                                       HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
+                                       VerticalAlignment="{TemplateBinding VerticalContentAlignment}"/>
+                    </ScrollViewer>
+                </Border>
+            </ControlTemplate>
+        </Setter>
+    </Style>
+
+    <Style Selector="ToggleButton">
+      <Setter Property="Background" Value="#6A70E0"/>
+      <Setter Property="Foreground" Value="White"/>
+      <Setter Property="Padding" Value="10,6"/>
+      <Setter Property="CornerRadius" Value="3"/>
+      <Setter Property="Template">
+        <ControlTemplate>
+          <Border Name="border"
+                  Background="{TemplateBinding Background}"
+                  CornerRadius="{TemplateBinding CornerRadius}"
+                  Padding="{TemplateBinding Padding}">
+            <ContentPresenter Content="{TemplateBinding Content}"
+                              HorizontalAlignment="Center"
+                              VerticalAlignment="Center"
+                              Foreground="{TemplateBinding Foreground}"
+                              TextBlock.TextWrapping="Wrap"
+                              TextBlock.TextAlignment="Center"/>
+          </Border>
+        </ControlTemplate>
+      </Setter>
+    </Style>
+
+    <Style Selector="ScrollBar:vertical">
+        <Setter Property="Background" Value="Transparent"/>
+        <Setter Property="AllowAutoHide" Value="False"/>
+        <Setter Property="Width" Value="8"/>
+        <Setter Property="Template">
+            <ControlTemplate>
+                <Grid Name="Root" Background="Transparent">
+                    <Track Name="PART_Track" 
+                           IsDirectionReversed="True"
+                           Orientation="Vertical"
+                           Value="{TemplateBinding Value, Mode=TwoWay}"
+                           Minimum="{TemplateBinding Minimum}"
+                           Maximum="{TemplateBinding Maximum}"
+                           ViewportSize="{TemplateBinding ViewportSize}">
+                        <Track.Thumb>
+                            <Thumb Name="thumb"
+                                   MinHeight="10"
+                                   Background="#808080"
+                                   HorizontalAlignment="Right">
+                                <Thumb.Template>
+                                    <ControlTemplate>
+                                        <Border Background="{TemplateBinding Background}"
+                                                CornerRadius="3"
+                                                Width="4"/>
+                                    </ControlTemplate>
+                                </Thumb.Template>
+                            </Thumb>
+                        </Track.Thumb>
+                    </Track>
+                </Grid>
+            </ControlTemplate>
+        </Setter>
+    </Style>
+
+
+    <Style Selector="TextBox:pointerover /template/ Border#border">
+        <Setter Property="Background" Value="#6A70E0"/>
+        <Setter Property="BorderBrush" Value="#6A70E0"/>
+    </Style>
+
+    <Style Selector="TextBox:focus /template/ Border#border">
+        <Setter Property="Background" Value="#5F65C9"/>
+        <Setter Property="BorderBrush" Value="#5F65C9"/>
+    </Style>
+
+    <Style Selector="controls|TextLabel TextBox">
+        <Setter Property="BorderBrush" Value="Transparent"/>
+    </Style>
+
+    <Style Selector="controls|TextLabel TextBox:focus /template/ Border#border">
+        <Setter Property="Background" Value="Transparent"/>
+        <Setter Property="BorderBrush" Value="Transparent"/>
+    </Style>
+
+    <Style Selector="ToggleButton:pointerover /template/ Border#border">
+        <Setter Property="Background" Value="#7A81EB"/>
+    </Style>
+
+    <Style Selector="ToggleButton:pressed /template/ Border#border">
+        <Setter Property="Background" Value="#484FC5"/>
+    </Style>
+
+    <Style Selector="ToggleButton:checked /template/ Border#border">
+        <Setter Property="Background" Value="#5459C5"/>
+    </Style>
+
+    <Style Selector="ScrollBar:vertical /template/ Thumb#thumb:pressed">
+        <Setter Property="Background" Value="#6A70E0"/>
+    </Style>
+
+    <Style Selector="controls|InfoPanel:pointover /template/ Border#border">
+        <Setter Property="Background" Value="Transparent"/>
+    </Style>
+
+</Styles>

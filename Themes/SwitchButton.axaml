@@ -1,0 +1,50 @@
+﻿<Styles xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:controls="using:MihomoProxyGenerator.Controls">
+
+  <Design.PreviewWith>
+    <Border Padding="20">
+      <controls:SwitchButton Orientation="Horizontal" CornerRadius="3">
+		  <ToggleButton x:Name="newServersButton"
+                        Content="NEW"
+                        HorizontalAlignment="Stretch"
+                        VerticalAlignment="Stretch"
+                        HorizontalContentAlignment="Center"
+                        VerticalContentAlignment="Center"
+                        Foreground="White"
+                        BorderThickness="0"
+                        CornerRadius="0"
+                        IsChecked="False"/>
+
+          <ToggleButton x:Name="myServersButton"
+                        Content="MY"
+                        HorizontalAlignment="Stretch"
+                        VerticalAlignment="Stretch"
+                        HorizontalContentAlignment="Center"
+                        VerticalContentAlignment="Center"
+                        Foreground="White"
+                        BorderThickness="0"
+                        CornerRadius="0"
+                        IsChecked="False"/>
+      </controls:SwitchButton>
+    </Border>
+  </Design.PreviewWith>
+
+  <Style Selector="controls|SwitchButton">
+    <Setter Property="ItemsPanel">
+        <ItemsPanelTemplate>
+            <UniformGrid Rows="1" />
+        </ItemsPanelTemplate>
+    </Setter>
+    <Setter Property="Template">
+        <ControlTemplate>
+            <Border Background="{TemplateBinding Background}"
+                    CornerRadius="{TemplateBinding CornerRadius}"
+                    ClipToBounds="True">
+                <ItemsPresenter Name="PART_ItemsPresenter" ItemsPanel="{TemplateBinding ItemsPanel}"/>
+            </Border>
+        </ControlTemplate>
+    </Setter>
+</Style>
+
+</Styles>

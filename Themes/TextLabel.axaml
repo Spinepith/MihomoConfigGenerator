@@ -1,0 +1,46 @@
+﻿<Styles xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:controls="using:MihomoProxyGenerator.Controls">
+
+  <Design.PreviewWith>
+    <Border Padding="4">
+      <controls:TextLabel Label="Имя:" Text="Иван Иванов" />
+    </Border>
+  </Design.PreviewWith>
+    
+  <Style Selector="controls|TextLabel">
+    <Setter Property="Template">
+      <ControlTemplate TargetType="controls:TextLabel">
+        <Border Background="{TemplateBinding Background}"
+                BorderBrush="{TemplateBinding BorderBrush}"
+                CornerRadius="{TemplateBinding CornerRadius}"
+                Padding="4"
+                ClipToBounds="True">
+			<Grid ColumnDefinitions="Auto, *, Auto"
+                  ColumnSpacing="4"
+                  VerticalAlignment="Center"
+                  HorizontalAlignment="Stretch">
+                <TextBlock Grid.Column="0"
+                           Text="{TemplateBinding Label}"
+                           VerticalAlignment="Center"
+                           Foreground="White"/>
+                <TextBox Grid.Column="1"
+                         Text="{TemplateBinding Text}"
+                         HorizontalAlignment="Stretch"
+                         VerticalAlignment="Center"
+                         VerticalContentAlignment="Center"
+                         Foreground="White"
+                         Background="Transparent"/>
+                <TextBlock Grid.Column="2"
+                           Text="{TemplateBinding EndLabel}"
+                           VerticalAlignment="Center"
+                           Foreground="White"
+                           FontWeight="Bold"
+                           Margin="0, 0, 4, 0"/>
+            </Grid>
+        </Border>
+      </ControlTemplate>
+    </Setter>
+  </Style>
+
+</Styles>

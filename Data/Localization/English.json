@@ -1,0 +1,50 @@
+﻿{
+    "leftPanel": {
+        "dropdowns": {
+            "proxySettings": "PROXY SETTINGS",
+            "presets": "PRESETS"
+        },
+        "presets": {
+            "proxyAll": "ALL THROUGH PROXY",
+            "proxyExceptRussia": "PROXY FOR ALL SITES EXCEPT RUSSIAN",
+            "proxyExceptBlocked": "PROXY FOR SITES FROM THE 'BLOCKED' LIST"
+        },
+        "buttons": {
+            "ads": "BLOCK ADS, ANALYTICS, TRACKERS",
+            "newConfig": "NEW CONFIG"
+        }
+    },
+    "centerPanel": {
+        "buttons": {
+            "browse": "BROWSE",
+            "generate": "GENERATE",
+            "appendToFile": "APPEND VPSs TO FILE",
+            "save": "SAVE"
+        },
+        "textBoxes": {
+            "browse": "PATH TO THE VLESS KEYS FILE",
+            "vless": "VLESS KEYS",
+            "result": "GENERATION RESULT",
+            "save": "SAVE FILE PATH"
+        }
+    },
+    "rightPanel": {
+        "buttons": {
+            "newServers": "NEW",
+            "myServers": "MY",
+            "deleteServer": "DELETE",
+            "connectRouter": "CONNECT TO THE ROUTER",
+            "backup": "BACKUP MY CONFIG",
+            "replace": "REPLACE CONFIG"
+        },
+        "panels": {
+            "serversPanel": "SERVERS"
+        }
+    },
+    "infoPanel": {
+        "description": "DESCRIPTION",
+        "author": "by spinepith",
+        "version": "version 0.1",
+        "checkUpdates": "CHECK UPDATES"
+    }
+}
