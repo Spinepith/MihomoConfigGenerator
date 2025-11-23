@@ -30,155 +30,169 @@
                         BorderThickness="1"
                         BorderBrush="#6A70E0"
                         Background="Transparent"
+                        ClipToBounds="True"
                         Padding="3">
 
-                    <ScrollViewer VerticalScrollBarVisibility="Auto"
-                                  HorizontalScrollBarVisibility="Disabled">
+                    <Border CornerRadius="3" ClipToBounds="True" Background="Transparent">
+						
+                        <ScrollViewer VerticalScrollBarVisibility="Auto"
+                                      HorizontalScrollBarVisibility="Disabled">
 
-                        <StackPanel Spacing="3"  ClipToBounds="True">
+                            <StackPanel Spacing="3" ClipToBounds="True">
 					
-                            <controls:DropdownPanel x:Name="proxySettingsDropdown"
-                                                    ButtonText="{localization:Localize leftPanel.dropdowns.proxySettings}"
-                                                    CornerRadius="3">
+                                <controls:DropdownPanel x:Name="proxySettingsDropdown"
+                                                        ButtonText="{localization:Localize leftPanel.dropdowns.proxySettings}"
+                                                        CornerRadius="3">
                         
-                                <controls:LabeledPanel Label="VLESS" Foreground="White">
+                                    <controls:LabeledPanel Label="VLESS" Foreground="White">
+
+                                        <StackPanel Spacing="3">
+								
+                                            <controls:TextLabel Label="name:"
+                                                                EndLabel="*"
+                                                                Background="#6A70E0"
+                                                                BorderBrush="White"
+                                                                CornerRadius="3"
+                                                                ContentHorizontalAlignment="Stretch"/>
+
+                                            <controls:TextLabel Label="type:"
+                                                                EndLabel="*"
+                                                                Text="vless"
+                                                                Background="#6A70E0"
+                                                                BorderBrush="White"
+                                                                CornerRadius="3"
+                                                                ContentHorizontalAlignment="Stretch"/>
+
+                                            <controls:TextLabel Label="server:"
+                                                                EndLabel="*"
+                                                                Background="#6A70E0"
+                                                                BorderBrush="White"
+                                                                CornerRadius="3"
+                                                                ContentHorizontalAlignment="Stretch"/>
+
+                                            <controls:TextLabel Label="port:"
+                                                                EndLabel="*"
+                                                                Text="443"
+                                                                Background="#6A70E0"
+                                                                BorderBrush="White"
+                                                                CornerRadius="3"
+                                                                ContentHorizontalAlignment="Stretch"/>
+
+                                            <controls:TextLabel Label="udp:"
+                                                                Text="true"
+                                                                Background="#6A70E0"
+                                                                BorderBrush="White"
+                                                                CornerRadius="3"
+                                                                ContentHorizontalAlignment="Stretch"/>
+
+                                            <controls:TextLabel Label="uuid:"
+                                                                EndLabel="*"
+                                                                Background="#6A70E0"
+                                                                BorderBrush="White"
+                                                                CornerRadius="3"
+                                                                ContentHorizontalAlignment="Stretch"/>
+
+                                            <controls:TextLabel Label="flow:"
+                                                                EndLabel="*"
+                                                                Background="#6A70E0"
+                                                                BorderBrush="White"
+                                                                CornerRadius="3"
+                                                                ContentHorizontalAlignment="Stretch"/>
+
+                                            <controls:TextLabel Label="packet-encoding:"
+                                                                Background="#6A70E0"
+                                                                BorderBrush="White"
+                                                                CornerRadius="3"
+                                                                ContentHorizontalAlignment="Stretch"/>
+
+                                            <controls:TextLabel Label="tls:"
+                                                                EndLabel="*"
+                                                                Text="true"
+                                                                Background="#6A70E0"
+                                                                BorderBrush="White"
+                                                                CornerRadius="3"
+                                                                ContentHorizontalAlignment="Stretch"/>
+
+                                            <controls:TextLabel Label="servername:"
+                                                                EndLabel="*"
+                                                                Background="#6A70E0"
+                                                                BorderBrush="White"
+                                                                CornerRadius="3"
+                                                                ContentHorizontalAlignment="Stretch"/>
+
+                                            <controls:TextLabel Label="alpn:"
+                                                                Text="[example: h2;http/1.1]"
+                                                                Background="#6A70E0"
+                                                                BorderBrush="White"
+                                                                CornerRadius="3"
+                                                                ContentHorizontalAlignment="Stretch"/>
+
+                                            <controls:TextLabel Label="client-fingerprint:"
+                                                                Text="chrome"
+                                                                Background="#6A70E0"
+                                                                BorderBrush="White"
+                                                                CornerRadius="3"
+                                                                ContentHorizontalAlignment="Stretch"/>
+
+                                            <controls:TextLabel Label="skip-cert-verify:"
+                                                                Text="false"
+                                                                Background="#6A70E0"
+                                                                BorderBrush="White"
+                                                                CornerRadius="3"
+                                                                ContentHorizontalAlignment="Stretch"/>
+
+                                            <controls:TextLabel Label="public-key:"
+                                                                EndLabel="*"
+                                                                Background="#6A70E0"
+                                                                BorderBrush="White"
+                                                                CornerRadius="3"
+                                                                ContentHorizontalAlignment="Stretch"/>
+
+                                            <controls:TextLabel Label="short-id:"
+                                                                EndLabel="*"
+                                                                Background="#6A70E0"
+                                                                BorderBrush="White"
+                                                                CornerRadius="3"
+                                                                ContentHorizontalAlignment="Stretch"/>
+
+                                            <controls:TextLabel Label="encryption:"
+                                                                Background="#6A70E0"
+                                                                BorderBrush="White"
+                                                                CornerRadius="3"
+                                                                ContentHorizontalAlignment="Stretch"/>
+
+                                            <controls:TextLabel Label="network:"
+                                                                EndLabel="*"
+                                                                Text="tcp"
+                                                                Background="#6A70E0"
+                                                                BorderBrush="White"
+                                                                CornerRadius="3"
+                                                                ContentHorizontalAlignment="Stretch"/>
+
+                                        </StackPanel>
+
+                                    </controls:LabeledPanel>
+
+                                </controls:DropdownPanel>
+
+                                <controls:DropdownPanel ButtonText="{localization:Localize leftPanel.dropdowns.presets}"
+                                                        CornerRadius="3">
 
                                     <StackPanel Spacing="3">
-								
-                                        <controls:TextLabel Label="name:"
-                                                            EndLabel="*"
-                                                            Background="#6A70E0"
-                                                            BorderBrush="White"
-                                                            CornerRadius="3"
-                                                            ContentHorizontalAlignment="Stretch"/>
-
-                                        <controls:TextLabel Label="type:"
-                                                            EndLabel="*"
-                                                            Text="vless"
-                                                            Background="#6A70E0"
-                                                            BorderBrush="White"
-                                                            CornerRadius="3"
-                                                            ContentHorizontalAlignment="Stretch"/>
-
-                                        <controls:TextLabel Label="server:"
-                                                            EndLabel="*"
-                                                            Background="#6A70E0"
-                                                            BorderBrush="White"
-                                                            CornerRadius="3"
-                                                            ContentHorizontalAlignment="Stretch"/>
-
-                                        <controls:TextLabel Label="port:"
-                                                            EndLabel="*"
-                                                            Text="443"
-                                                            Background="#6A70E0"
-                                                            BorderBrush="White"
-                                                            CornerRadius="3"
-                                                            ContentHorizontalAlignment="Stretch"/>
-
-                                        <controls:TextLabel Label="udp:"
-                                                            Text="true"
-                                                            Background="#6A70E0"
-                                                            BorderBrush="White"
-                                                            CornerRadius="3"
-                                                            ContentHorizontalAlignment="Stretch"/>
-
-                                        <controls:TextLabel Label="uuid:"
-                                                            EndLabel="*"
-                                                            Background="#6A70E0"
-                                                            BorderBrush="White"
-                                                            CornerRadius="3"
-                                                            ContentHorizontalAlignment="Stretch"/>
-
-                                        <controls:TextLabel Label="flow:"
-                                                            EndLabel="*"
-                                                            Background="#6A70E0"
-                                                            BorderBrush="White"
-                                                            CornerRadius="3"
-                                                            ContentHorizontalAlignment="Stretch"/>
-
-                                        <controls:TextLabel Label="packet-encoding:"
-                                                            Background="#6A70E0"
-                                                            BorderBrush="White"
-                                                            CornerRadius="3"
-                                                            ContentHorizontalAlignment="Stretch"/>
-
-                                        <controls:TextLabel Label="tls:"
-                                                            EndLabel="*"
-                                                            Text="true"
-                                                            Background="#6A70E0"
-                                                            BorderBrush="White"
-                                                            CornerRadius="3"
-                                                            ContentHorizontalAlignment="Stretch"/>
-
-                                        <controls:TextLabel Label="servername:"
-                                                            EndLabel="*"
-                                                            Background="#6A70E0"
-                                                            BorderBrush="White"
-                                                            CornerRadius="3"
-                                                            ContentHorizontalAlignment="Stretch"/>
-
-                                        <controls:TextLabel Label="alpn:"
-                                                            Text="[example: h2;http/1.1]"
-                                                            Background="#6A70E0"
-                                                            BorderBrush="White"
-                                                            CornerRadius="3"
-                                                            ContentHorizontalAlignment="Stretch"/>
-
-                                        <controls:TextLabel Label="client-fingerprint:"
-                                                            Text="chrome"
-                                                            Background="#6A70E0"
-                                                            BorderBrush="White"
-                                                            CornerRadius="3"
-                                                            ContentHorizontalAlignment="Stretch"/>
-
-                                        <controls:TextLabel Label="skip-cert-verify:"
-                                                            Text="false"
-                                                            Background="#6A70E0"
-                                                            BorderBrush="White"
-                                                            CornerRadius="3"
-                                                            ContentHorizontalAlignment="Stretch"/>
-
-                                        <controls:TextLabel Label="public-key:"
-                                                            EndLabel="*"
-                                                            Background="#6A70E0"
-                                                            BorderBrush="White"
-                                                            CornerRadius="3"
-                                                            ContentHorizontalAlignment="Stretch"/>
-
-                                        <controls:TextLabel Label="short-id:"
-                                                            EndLabel="*"
-                                                            Background="#6A70E0"
-                                                            BorderBrush="White"
-                                                            CornerRadius="3"
-                                                            ContentHorizontalAlignment="Stretch"/>
-
-                                        <controls:TextLabel Label="encryption:"
-                                                            Background="#6A70E0"
-                                                            BorderBrush="White"
-                                                            CornerRadius="3"
-                                                            ContentHorizontalAlignment="Stretch"/>
-
-                                        <controls:TextLabel Label="network:"
-                                                            EndLabel="*"
-                                                            Text="tcp"
-                                                            Background="#6A70E0"
-                                                            BorderBrush="White"
-                                                            CornerRadius="3"
-                                                            ContentHorizontalAlignment="Stretch"/>
-
-                                    </StackPanel>
-
-                                </controls:LabeledPanel>
-
-                            </controls:DropdownPanel>
-
-                            <controls:DropdownPanel ButtonText="{localization:Localize leftPanel.dropdowns.presets}"
-                                                    CornerRadius="3">
-
-                                <StackPanel Spacing="3">
 							
-                                    <ToggleButton x:Name="AllProxyButton"
-                                                  Content="{localization:Localize leftPanel.presets.proxyAll}"
+                                        <ToggleButton x:Name="AllProxyButton"
+                                                      Content="{localization:Localize leftPanel.presets.proxyAll}"
+                                                      HorizontalAlignment="Stretch"
+                                                      HorizontalContentAlignment="Center"
+                                                      VerticalContentAlignment="Center"
+                                                      Foreground="White"
+                                                      BorderThickness="0"
+                                                      CornerRadius="3"
+                                                      IsChecked="False"
+                                                      Click=""/>
+
+                                    <ToggleButton x:Name="ExceptRussiaButton"
+                                                  Content="{localization:Localize leftPanel.presets.proxyExceptRussia}"
                                                   HorizontalAlignment="Stretch"
                                                   HorizontalContentAlignment="Center"
                                                   VerticalContentAlignment="Center"
@@ -188,8 +202,23 @@
                                                   IsChecked="False"
                                                   Click=""/>
 
-                                <ToggleButton x:Name="ExceptRussiaButton"
-                                              Content="{localization:Localize leftPanel.presets.proxyExceptRussia}"
+                                    <ToggleButton x:Name="BlockedSitesButton"
+                                                  Content="{localization:Localize leftPanel.presets.proxyExceptBlocked}"
+                                                  HorizontalAlignment="Stretch"
+                                                  HorizontalContentAlignment="Center"
+                                                  VerticalContentAlignment="Center"
+                                                  Foreground="White"
+                                                  BorderThickness="0"
+                                                  CornerRadius="3"
+                                                  IsChecked="False"
+                                                  Click=""/>
+
+                                    </StackPanel>
+
+                                </controls:DropdownPanel>
+
+                                <ToggleButton x:Name="AddsToggleButton"
+                                              Content="{localization:Localize leftPanel.buttons.ads}"
                                               HorizontalAlignment="Stretch"
                                               HorizontalContentAlignment="Center"
                                               VerticalContentAlignment="Center"
@@ -198,36 +227,12 @@
                                               CornerRadius="3"
                                               IsChecked="False"
                                               Click=""/>
-
-                                <ToggleButton x:Name="BlockedSitesButton"
-                                              Content="{localization:Localize leftPanel.presets.proxyExceptBlocked}"
-                                              HorizontalAlignment="Stretch"
-                                              HorizontalContentAlignment="Center"
-                                              VerticalContentAlignment="Center"
-                                              Foreground="White"
-                                              BorderThickness="0"
-                                              CornerRadius="3"
-                                              IsChecked="False"
-                                              Click=""/>
-
-                                </StackPanel>
-
-                            </controls:DropdownPanel>
-
-                            <ToggleButton x:Name="AddsToggleButton"
-                                          Content="{localization:Localize leftPanel.buttons.ads}"
-                                          HorizontalAlignment="Stretch"
-                                          HorizontalContentAlignment="Center"
-                                          VerticalContentAlignment="Center"
-                                          Foreground="White"
-                                          BorderThickness="0"
-                                          CornerRadius="3"
-                                          IsChecked="False"
-                                          Click=""/>
                     
-                        </StackPanel>
+                            </StackPanel>
 
-                    </ScrollViewer>
+                        </ScrollViewer>
+
+                    </Border>
 
                 </Border>
 
@@ -350,12 +355,11 @@
 
                     <TextBox Grid.Column="2"
                              x:Name="browseTextBox"
-                             Background="#B0B5FF"
+                             Background="#A6ACFF"
                              BorderBrush="#6A70E0"
                              Text="{localization:Localize centerPanel.textBoxes.browse}"
                              HorizontalContentAlignment="Left"
-                             Foreground="White"
-                             IsEnabled="False"/>
+                             Foreground="White"/>
                 
                     <Button Grid.Column="3"
                             x:Name="browseButton"
@@ -370,49 +374,86 @@
                             Click="Browse"/>
                 </Grid>
 
-                <Grid Grid.Row="1" ColumnDefinitions="*, *" ColumnSpacing="10">
+                <Grid x:Name="textBoxesGrid" Grid.Row="1" ColumnDefinitions="*, *" ColumnSpacing="10">
 
-                    <Grid Grid.Column="0">
-                        <TextBox x:Name="InputTextBox"
-                                 AcceptsReturn="True"
-                                 TextWrapping="NoWrap"
-                                 Background="#B0B5FF"
-                                 Foreground="White"
-                                 BorderBrush="#6A70E0"
-                                 Padding="10"
-                                 ScrollViewer.HorizontalScrollBarVisibility="Auto"
-                                 ScrollViewer.VerticalScrollBarVisibility="Auto"
-                                 Text="{localization:Localize centerPanel.textBoxes.vless}"
-                                 HorizontalContentAlignment="Center"
-                                 VerticalContentAlignment="Center"/>
-                    </Grid>
+                    <Border x:Name="vlessPanel" Grid.Column="0" CornerRadius="3" ClipToBounds="True">
+                    
+                        <ScrollViewer HorizontalScrollBarVisibility="Auto" Background="Transparent">
+                            
+                            <TextBox x:Name="vlessTextBox"
+                                     AcceptsReturn="True"
+                                     TextWrapping="NoWrap"
+                                     Background="#7C82E0"
+                                     Foreground="White"
+                                     BorderBrush="#6A70E0"
+                                     Padding="10"
+                                     Text="{localization:Localize centerPanel.textBoxes.vless}"
+                                     GotFocus="GotFocusTextBox"
+                                     LostFocus="LostFocusTextBox"/>
+                    
+                        </ScrollViewer>
+                    
+                    </Border>
 
-                    <Grid Grid.Column="1">
-                        <TextBox x:Name="OutputTextBox"
-                                 AcceptsReturn="True"
-                                 TextWrapping="NoWrap"
-                                 Background="#B0B5FF"
-                                 Foreground="White"
-                                 BorderBrush="#6A70E0"
-                                 Padding="10"
-                                 ScrollViewer.HorizontalScrollBarVisibility="Auto"
-                                 ScrollViewer.VerticalScrollBarVisibility="Auto"
-                                 Text="{localization:Localize centerPanel.textBoxes.result}"
-                                 HorizontalContentAlignment="Center"
-                                 VerticalContentAlignment="Center"/>
-                    </Grid>
+                    <Border x:Name="resultPanel" Grid.Column="1" CornerRadius="3" ClipToBounds="True">
+						
+                        <ScrollViewer HorizontalScrollBarVisibility="Auto">
+                            
+                            <TextBox x:Name="resultTextBox"
+                                     AcceptsReturn="True"
+                                     TextWrapping="NoWrap"
+                                     Background="#7C82E0"
+                                     Foreground="White"
+                                     BorderBrush="#6A70E0"
+                                     Padding="10"
+                                     Text="{localization:Localize centerPanel.textBoxes.result}"
+                                     GotFocus="GotFocusTextBox"
+                                     LostFocus="LostFocusTextBox"/>
+                        
+                        </ScrollViewer>
+
+                    </Border>
 
                 </Grid>
 
-                <Button Grid.Row="2"
-                        x:Name="GenerateButton"
-                        Content="{localization:Localize centerPanel.buttons.generate}"
-                        HorizontalContentAlignment="Center"
-                        HorizontalAlignment="Stretch"
-                        Background="#6A70E0"
-                        Foreground="White"
-                        BorderThickness="0"
-                        Click=""/>
+                <Grid Grid.Row="2" ColumnDefinitions="Auto, *, Auto" ColumnSpacing="10">
+                    
+                    <ToggleButton Grid.Column="0"
+                                  x:Name="leftExpandButton"
+                                  Content="&#x26F6;"
+                                  HorizontalContentAlignment="Center"
+                                  VerticalContentAlignment="Center"
+                                  HorizontalAlignment="Stretch"
+                                  VerticalAlignment="Stretch"
+                                  Background="#6A70E0"
+                                  Foreground="White"
+                                  BorderThickness="0"
+                                  Click="ExpandTextBox"/>
+
+                    <Button Grid.Column="1"
+                            x:Name="GenerateButton"
+                            Content="{localization:Localize centerPanel.buttons.generate}"
+                            HorizontalContentAlignment="Center"
+                            HorizontalAlignment="Stretch"
+                            VerticalAlignment="Stretch"
+                            Background="#6A70E0"
+                            Foreground="White"
+                            BorderThickness="0"
+                            Click="Generate"/>
+
+                    <ToggleButton Grid.Column="2"
+                                  x:Name="rightExpandButton"
+                                  Content="&#x26F6;"
+                                  HorizontalContentAlignment="Center"
+                                  VerticalContentAlignment="Center"
+                                  HorizontalAlignment="Stretch"
+                                  VerticalAlignment="Stretch"
+                                  Foreground="White"
+                                  BorderThickness="0"
+                                  CornerRadius="3"
+                                  Click="ExpandTextBox"/>
+                
+                </Grid>
 
                 <Grid Grid.Row="3" ColumnDefinitions="Auto, Auto, *, Auto" ColumnSpacing="10">
 
@@ -434,13 +475,12 @@
                                VerticalAlignment="Stretch"/>
             
                     <TextBox Grid.Column="2"
-                             x:Name="savePathTextBox" 
-                             Background="#B0B5FF"
+                             x:Name="saveTextBox" 
+                             Background="#A6ACFF"
                              BorderBrush="#6A70E0"
                              Text="{localization:Localize centerPanel.textBoxes.save}"
                              HorizontalContentAlignment="Left"
-                             Foreground="White"
-                             IsEnabled="False"/>
+                             Foreground="White"/>
             
                     <Button Grid.Column="3"
                             x:Name="saveButton"
@@ -452,7 +492,7 @@
                             Background="#6A70E0"
                             Foreground="White"
                             BorderThickness="0"
-                            Click=""/>
+                            Click="Save"/>
 
                 </Grid>
 
@@ -497,20 +537,85 @@
                 
                 </controls:SwitchButton>
 
-                <Border Grid.Row="1"
-                        CornerRadius="3"
-                        BorderThickness="1"
-                        BorderBrush="#6A70E0"
-                        Background="Transparent"
-                        Padding="3">
+                <Grid Grid.Row="1">
 
-                    <Label x:Name="serversLabel"
-                           VerticalAlignment="Center"
-                           HorizontalAlignment="Center"
-                           Content="{localization:Localize rightPanel.panels.serversPanel}"
-                           Foreground="White"/>
+                    <Border x:Name="serversPanel"
+                            CornerRadius="3"
+                            Background="Transparent"
+                            BorderBrush="#6A70E0"
+                            BorderThickness="1"
+                            ClipToBounds="True"
+                            IsVisible="False">
 
-                </Border>
+                        <TextBlock HorizontalAlignment="Center"
+                                   VerticalAlignment="Center"
+                                   Text="{localization:Localize rightPanel.panels.serversPanel}"
+                                   Foreground="White"/>
+
+                    </Border>
+
+                    <Border x:Name="newServersPanel"
+                            HorizontalAlignment="Stretch"
+                            VerticalAlignment="Stretch"
+                            CornerRadius="3"
+                            Background="Transparent"
+                            BorderBrush="#6A70E0"
+                            BorderThickness="1"
+                            ClipToBounds="True">
+
+                        <ScrollViewer HorizontalScrollBarVisibility="Disabled"
+                                      Background="Transparent">
+                        
+                            <StackPanel x:Name="newServersBlock" Spacing="3"/>
+                        
+                        </ScrollViewer>
+
+                    </Border>
+
+                    <Border x:Name="myServersPanel"
+                            HorizontalAlignment="Stretch"
+                            VerticalAlignment="Stretch"
+                            Background="Transparent"
+                            ClipToBounds="True">
+                    
+                        <Grid>
+							
+                            <ScrollViewer x:Name="myServersScrollBar"
+                                          HorizontalScrollBarVisibility="Disabled"
+                                          Background="Transparent">
+							
+                                <Border CornerRadius="3"
+                                        Background="Transparent"
+                                        BorderBrush="#6A70E0"
+                                        BorderThickness="1">
+                                
+                                    <StackPanel x:Name="myServersBlock" Spacing="3"/>
+                                
+                                </Border>
+
+                            </ScrollViewer>
+
+                            <ScrollViewer x:Name="myConfigScrollBar"
+                                          HorizontalScrollBarVisibility="Auto"
+                                          Background="Transparent">
+
+                                <TextBox x:Name="myConfigBlock"
+                                         AcceptsReturn="True"
+                                         TextWrapping="NoWrap"
+                                         Background="#7C82E0"
+                                         Foreground="White"
+                                         BorderBrush="#6A70E0"
+                                         Padding="10"
+                                         GotFocus="GotFocusTextBox"
+                                         LostFocus="LostFocusTextBox"/>
+
+                            </ScrollViewer>
+
+                        </Grid>
+
+                    </Border>
+
+                </Grid>
 
                 <StackPanel x:Name="routerButtonsPanel" Grid.Row="2" Spacing="4">
 				
@@ -525,7 +630,18 @@
                             BorderThickness="0"
                             Click=""/>
 
-                    <Button x:Name="backupButton"
+                    <ToggleButton x:Name="showMyConfigButton"
+                                  Content="{localization:Localize rightPanel.buttons.showMyConfig}"
+                                  HorizontalAlignment="Stretch"
+                                  VerticalAlignment="Stretch"
+                                  HorizontalContentAlignment="Center"
+                                  VerticalContentAlignment="Center"
+                                  Foreground="White"
+                                  BorderThickness="0"
+                                  CornerRadius="0"
+                                  Click="ShowMyConfig"/>
+
+                    <Button x:Name="backupMyConfigButton"
                             Content="{localization:Localize rightPanel.buttons.backup}"
                             HorizontalAlignment="Stretch"
                             VerticalAlignment="Stretch"
@@ -537,7 +653,7 @@
                             IsEnabled="False"
                             Click=""/>
 
-                    <Button x:Name="replaceComfigButton"
+                    <Button x:Name="replaceMyConfigButton"
                             Content="{localization:Localize rightPanel.buttons.replace}"
                             HorizontalAlignment="Stretch"
                             VerticalAlignment="Stretch"
@@ -552,6 +668,20 @@
                 </StackPanel>
 
             </Grid>
+
+        </Grid>
+
+        <Grid x:Name="sshPanel"
+              HorizontalAlignment="Stretch"
+              VerticalAlignment="Stretch"
+              ZIndex="999"
+              IsVisible="False">
+
+            <Border Background="#80000000" 
+                    HorizontalAlignment="Stretch"
+                    VerticalAlignment="Stretch"/>
+
+            <!-- TextLabel -->
 
         </Grid>
 

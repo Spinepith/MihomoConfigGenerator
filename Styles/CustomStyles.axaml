@@ -36,21 +36,30 @@
 
 
     <Style Selector="TextBox">
+        <Setter Property="SelectionBrush" Value="#55B0B0B0"/>
+        <Setter Property="SelectionForegroundBrush" Value="White"/>
+        <Setter Property="VerticalContentAlignment" Value="Center"/>
         <Setter Property="Template">
             <ControlTemplate>
                 <Border Name="border"
                         Background="{TemplateBinding Background}"
                         BorderBrush="{TemplateBinding BorderBrush}"
                         BorderThickness="{TemplateBinding BorderThickness}"
-                        CornerRadius="3">
+                        CornerRadius="3"
+                        Padding="{TemplateBinding Padding}">
                     <ScrollViewer Name="PART_ScrollViewer"
                                   Background="Transparent"
                                   BorderThickness="0"
-                                  Padding="{TemplateBinding Padding}">
+                                  Padding="0">
                         <TextPresenter Name="PART_TextPresenter"
                                        Text="{TemplateBinding Text}"
+                                       CaretIndex="{TemplateBinding CaretIndex}" 
+                                       SelectionStart="{TemplateBinding SelectionStart}"
+                                       SelectionEnd="{TemplateBinding SelectionEnd}"
                                        Foreground="White"
                                        CaretBrush="White"
+                                       SelectionBrush="{TemplateBinding SelectionBrush}"
+                                       SelectionForegroundBrush="{TemplateBinding SelectionForegroundBrush}"
                                        TextWrapping="{TemplateBinding TextWrapping}"
                                        HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
                                        VerticalAlignment="{TemplateBinding VerticalContentAlignment}"/>
@@ -116,6 +125,40 @@
         </Setter>
     </Style>
 
+    <Style Selector="ScrollBar:horizontal">
+        <Setter Property="Background" Value="Transparent"/>
+        <Setter Property="AllowAutoHide" Value="False"/>
+        <Setter Property="Height" Value="8"/> 
+        <Setter Property="Template">
+            <ControlTemplate>
+                <Grid Name="Root" Background="Transparent">
+                    <Track Name="PART_Track" 
+                           IsDirectionReversed="False"
+                           Orientation="Horizontal"
+                           Value="{TemplateBinding Value, Mode=TwoWay}"
+                           Minimum="{TemplateBinding Minimum}"
+                           Maximum="{TemplateBinding Maximum}"
+                           ViewportSize="{TemplateBinding ViewportSize}">
+                        <Track.Thumb>
+                            <Thumb Name="thumb"
+                                   MinWidth="10"
+                                   Background="#808080"
+                                   VerticalAlignment="Bottom"> 
+                                <Thumb.Template>
+                                    <ControlTemplate>
+                                        <Border Background="{TemplateBinding Background}"
+                                                CornerRadius="3"
+                                                Height="4"/> 
+                                    </ControlTemplate>
+                                </Thumb.Template>
+                            </Thumb>
+                        </Track.Thumb>
+                    </Track>
+                </Grid>
+            </ControlTemplate>
+        </Setter>
+    </Style>
+
 
     <Style Selector="TextBox:pointerover /template/ Border#border">
         <Setter Property="Background" Value="#6A70E0"/>
@@ -148,7 +191,11 @@
         <Setter Property="Background" Value="#5459C5"/>
     </Style>
 
-    <Style Selector="ScrollBar:vertical /template/ Thumb#thumb:pressed">
+    <Style Selector="ScrollViewer /template/ Panel#PART_ScrollBarsSeparator">
+        <Setter Property="IsVisible" Value="False"/>
+    </Style>
+
+    <Style Selector="ScrollBar /template/ Thumb#thumb:pressed">
         <Setter Property="Background" Value="#6A70E0"/>
     </Style>
 

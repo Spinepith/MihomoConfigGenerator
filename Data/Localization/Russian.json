@@ -34,6 +34,7 @@
             "myServers": "МОИ",
             "deleteServer": "УДАЛИТЬ",
             "connectRouter": "ПОДКЛЮЧИТЬСЯ К РОУТЕРУ",
+            "showMyConfig": "ПОКАЗАТЬ МОЙ КОНФИГ",
             "backup": "БЭКАП МОЕГО КОНФИГА",
             "replace": "ЗАМЕНИТЬ КОНФИГ"
         },
@@ -46,5 +47,12 @@
         "author": "by spinepith",
         "version": "version 0.1",
         "checkUpdates": "ПРОВЕРИТЬ ОБНОВЛЕНИЯ"
+    },
+    "browse": {
+        "title": "Выберите текстовый файл",
+        "fileType": "Текстовые файлы"
+    },
+    "save": {
+        "title": "Сохранить файл"
     }
 }

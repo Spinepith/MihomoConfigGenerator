@@ -34,6 +34,7 @@
             "myServers": "MY",
             "deleteServer": "DELETE",
             "connectRouter": "CONNECT TO THE ROUTER",
+            "showMyConfig": "SHOW MY CONFIG",
             "backup": "BACKUP MY CONFIG",
             "replace": "REPLACE CONFIG"
         },
@@ -46,5 +47,12 @@
         "author": "by spinepith",
         "version": "version 0.1",
         "checkUpdates": "CHECK UPDATES"
+    },
+    "browse": {
+        "title": "Select a text file",
+        "fileType": "Text files"
+    },
+    "save": {
+        "title": "Save file"
     }
 }
