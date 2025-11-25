@@ -5,6 +5,8 @@
         xmlns:controls="using:MihomoProxyGenerator.Controls"
         xmlns:localization="using:MihomoProxyGenerator.Data.Localization"
         x:Class="MihomoProxyGenerator.Views.MainWindow"
+        MinWidth="960"
+        MinHeight="480"
         Width="1440"
         Height="720"
         Title="Mihomo Proxy Generator"
@@ -253,7 +255,7 @@
                                Stretch="Uniform"
                                StretchDirection="DownOnly"
                                MaxWidth="20"                  
-                               MaxHeight="20"/>                  
+                               MaxHeight="20"/>
 
                     </Button>
 
@@ -358,6 +360,7 @@
                              Background="#A6ACFF"
                              BorderBrush="#6A70E0"
                              Text="{localization:Localize centerPanel.textBoxes.browse}"
+                             TextWrapping="Wrap"
                              HorizontalContentAlignment="Left"
                              Foreground="White"/>
                 
@@ -458,16 +461,18 @@
                 <Grid Grid.Row="3" ColumnDefinitions="Auto, Auto, *, Auto" ColumnSpacing="10">
 
                     <ToggleButton Grid.Column="0"
-                                      x:Name="appendToggleButton"
-                                      Content="{localization:Localize centerPanel.buttons.appendToFile}"
-                                      HorizontalAlignment="Center"
-                                      VerticalAlignment="Stretch"
-                                      HorizontalContentAlignment="Center"
-                                      VerticalContentAlignment="Center"
-                                      Foreground="White"
-                                      BorderThickness="0"
-                                      CornerRadius="3"
-                                      Click="AppendToConfig"/>
+                                  x:Name="appendToggleButton"
+                                  TextBlock.TextWrapping="Wrap"
+                                  TextBlock.TextAlignment="Center"
+                                  Content="{localization:Localize centerPanel.buttons.appendToFile}"
+                                  HorizontalAlignment="Center"
+                                  VerticalAlignment="Stretch"
+                                  HorizontalContentAlignment="Center"
+                                  VerticalContentAlignment="Center"
+                                  Foreground="White"
+                                  BorderThickness="0"
+                                  CornerRadius="3"
+                                  Click="AppendToConfig"/>
             
                     <Rectangle Grid.Column="1"
                                Width="1"
@@ -479,6 +484,7 @@
                              Background="#A6ACFF"
                              BorderBrush="#6A70E0"
                              Text="{localization:Localize centerPanel.textBoxes.save}"
+                             TextWrapping="Wrap"
                              HorizontalContentAlignment="Left"
                              Foreground="White"/>
             
@@ -544,8 +550,7 @@
                             Background="Transparent"
                             BorderBrush="#6A70E0"
                             BorderThickness="1"
-                            ClipToBounds="True"
-                            IsVisible="False">
+                            ClipToBounds="True">
 
                         <TextBlock HorizontalAlignment="Center"
                                    VerticalAlignment="Center"
@@ -579,21 +584,21 @@
                             ClipToBounds="True">
                     
                         <Grid>
-							
-                            <ScrollViewer x:Name="myServersScrollBar"
-                                          HorizontalScrollBarVisibility="Disabled"
-                                          Background="Transparent">
-							
-                                <Border CornerRadius="3"
-                                        Background="Transparent"
-                                        BorderBrush="#6A70E0"
-                                        BorderThickness="1">
-                                
-                                    <StackPanel x:Name="myServersBlock" Spacing="3"/>
-                                
-                                </Border>
 
-                            </ScrollViewer>
+                            <Border x:Name="myServersBorder"
+                                    CornerRadius="3"
+                                    Background="Transparent"
+                                    BorderBrush="#6A70E0"
+                                    BorderThickness="1">
+                            
+                                <ScrollViewer HorizontalScrollBarVisibility="Disabled"
+                                              Background="Transparent">
+                                
+                                        <StackPanel x:Name="myServersBlock" Spacing="3"/>
+                                
+                                </ScrollViewer>
+                            
+                            </Border>
 
                             <ScrollViewer x:Name="myConfigScrollBar"
                                           HorizontalScrollBarVisibility="Auto"
@@ -619,18 +624,9 @@
 
                 <StackPanel x:Name="routerButtonsPanel" Grid.Row="2" Spacing="4">
 				
-                    <Button x:Name="connectButton"
-                            Content="{localization:Localize rightPanel.buttons.connectRouter}"
-                            HorizontalAlignment="Stretch"
-                            VerticalAlignment="Stretch"
-                            HorizontalContentAlignment="Center"
-                            VerticalContentAlignment="Center"
-                            Background="#6A70E0"
-                            Foreground="White"
-                            BorderThickness="0"
-                            Click=""/>
-
                     <ToggleButton x:Name="showMyConfigButton"
+                                  TextBlock.TextWrapping="Wrap"
+                                  TextBlock.TextAlignment="Center"
                                   Content="{localization:Localize rightPanel.buttons.showMyConfig}"
                                   HorizontalAlignment="Stretch"
                                   VerticalAlignment="Stretch"
@@ -641,7 +637,22 @@
                                   CornerRadius="0"
                                   Click="ShowMyConfig"/>
 
-                    <Button x:Name="backupMyConfigButton"
+                    <ToggleButton x:Name="saveMyConfigButton"
+                                  TextBlock.TextWrapping="Wrap"
+                                  TextBlock.TextAlignment="Center"
+                                  Content="{localization:Localize rightPanel.buttons.saveMyConfig}"
+                                  HorizontalAlignment="Stretch"
+                                  VerticalAlignment="Stretch"
+                                  HorizontalContentAlignment="Center"
+                                  VerticalContentAlignment="Center"
+                                  Foreground="White"
+                                  BorderThickness="0"
+                                  CornerRadius="0"
+                                  Click=""/>
+
+                    <Button x:Name="backupEntwareButton"
+                            TextBlock.TextWrapping="Wrap"
+                            TextBlock.TextAlignment="Center"
                             Content="{localization:Localize rightPanel.buttons.backup}"
                             HorizontalAlignment="Stretch"
                             VerticalAlignment="Stretch"
@@ -651,18 +662,28 @@
                             Foreground="White"
                             BorderThickness="0"
                             IsEnabled="False"
-                            Click=""/>
-
-                    <Button x:Name="replaceMyConfigButton"
-                            Content="{localization:Localize rightPanel.buttons.replace}"
+                            Click=""/>         
+                
+                    <Button x:Name="connectButton"
+                            TextBlock.TextWrapping="Wrap"
+                            TextBlock.TextAlignment="Center"
+                            Content="{localization:Localize rightPanel.buttons.connectRouter}"
                             HorizontalAlignment="Stretch"
                             VerticalAlignment="Stretch"
-                            HorizontalContentAlignment="Center"
-                            VerticalContentAlignment="Center"
                             Background="#6A70E0"
                             Foreground="White"
                             BorderThickness="0"
-                            IsEnabled="False"
+                            Click="OpenSshPanel"/>
+
+                    <Button x:Name="disconnectButton"
+                            TextBlock.TextWrapping="Wrap"
+                            TextBlock.TextAlignment="Center"
+                            Content="{localization:Localize rightPanel.buttons.disconnectRouter}"
+                            HorizontalAlignment="Stretch"
+                            VerticalAlignment="Stretch"
+                            Background="#6A70E0"
+                            Foreground="White"
+                            BorderThickness="0"
                             Click=""/>
 
                 </StackPanel>
@@ -681,7 +702,14 @@
                     HorizontalAlignment="Stretch"
                     VerticalAlignment="Stretch"/>
 
-            <!-- TextLabel -->
+            <controls:SshPanel x:Name="sshData"
+                               CornerRadius="3"
+                               HorizontalAlignment="Center"
+                               VerticalAlignment="Center"
+                               Background="White"
+                               Margin="60"
+                               CloseRequested="CloseSshPanel"
+                               ConnectionRequested="ConnectToRouter"/>
 
         </Grid>
 

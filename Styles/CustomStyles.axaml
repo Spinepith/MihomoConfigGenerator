@@ -34,6 +34,18 @@
         <Setter Property="Background" Value="#7075CC"/>
     </Style>
 
+    <Style Selector="ToggleButton:pointerover /template/ Border#border">
+        <Setter Property="Background" Value="#7A81EB"/>
+    </Style>
+
+    <Style Selector="ToggleButton:pressed /template/ Border#border">
+        <Setter Property="Background" Value="#484FC5"/>
+    </Style>
+
+    <Style Selector="ToggleButton:checked /template/ Border#border">
+        <Setter Property="Background" Value="#5459C5"/>
+    </Style>
+
 
     <Style Selector="TextBox">
         <Setter Property="SelectionBrush" Value="#55B0B0B0"/>
@@ -179,18 +191,6 @@
         <Setter Property="BorderBrush" Value="Transparent"/>
     </Style>
 
-    <Style Selector="ToggleButton:pointerover /template/ Border#border">
-        <Setter Property="Background" Value="#7A81EB"/>
-    </Style>
-
-    <Style Selector="ToggleButton:pressed /template/ Border#border">
-        <Setter Property="Background" Value="#484FC5"/>
-    </Style>
-
-    <Style Selector="ToggleButton:checked /template/ Border#border">
-        <Setter Property="Background" Value="#5459C5"/>
-    </Style>
-
     <Style Selector="ScrollViewer /template/ Panel#PART_ScrollBarsSeparator">
         <Setter Property="IsVisible" Value="False"/>
     </Style>
@@ -202,5 +202,9 @@
     <Style Selector="controls|InfoPanel:pointover /template/ Border#border">
         <Setter Property="Background" Value="Transparent"/>
     </Style>
+
+    <!--<Style Selector="ms|MessageBoxStandardWindow">
+        <Setter Property="(TextBlock.Foreground)" Value="Black"/>
+    </Style>-->
 
 </Styles>

@@ -11,6 +11,7 @@
         <StyleInclude Source="avares://MihomoProxyGenerator/Themes/TextLabel.axaml"/>
         <StyleInclude Source="avares://MihomoProxyGenerator/Themes/LabeledPanel.axaml"/>
         <StyleInclude Source="avares://MihomoProxyGenerator/Themes/InfoPanel.axaml"/>
+        <StyleInclude Source="avares://MihomoProxyGenerator/Themes/SshPanel.axaml"/>
         <StyleInclude Source="avares://MihomoProxyGenerator/Themes/SwitchButton.axaml"/>
 
         <Style Selector="Window">

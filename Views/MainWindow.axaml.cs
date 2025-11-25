@@ -11,10 +11,13 @@ using MsBox.Avalonia;
 using MsBox.Avalonia.Enums;
 using Avalonia.VisualTree;
 using MihomoProxyGenerator.Data.Localization;
+using MihomoProxyGenerator.Services;
 
 namespace MihomoProxyGenerator.Views;
 
 public partial class MainWindow : Window {
+    private EntwareClient router;
+
     public MainWindow() {
         InitializeComponent();
         ConfigureInterface();
@@ -285,11 +288,51 @@ public partial class MainWindow : Window {
         routerButtonsPanel.IsVisible = true;
     }
 
+    private void OpenSshPanel(object? sender, RoutedEventArgs e) {
+        sshPanel.IsVisible = true;
+    }
+
+    private void CloseSshPanel(object? sender, RoutedEventArgs e) {
+        sshPanel.IsVisible = false;
+    }
+
+    private async void ConnectToRouter(object? sender, RoutedEventArgs e) {
+        string username = sshData.Username;
+        string ip = sshData.Ip;
+        string port = sshData.Port;
+        string password = sshData.Password;
+
+        if (string.IsNullOrWhiteSpace(username) || string.IsNullOrWhiteSpace(ip) || string.IsNullOrWhiteSpace(port) || string.IsNullOrWhiteSpace(password)) {
+            await MessageBoxManager.GetMessageBoxStandard(
+                    "Error",
+                    Localizer.Instance["sshPanel.errors.emptyData"],
+                    ButtonEnum.Ok,
+                    MsBox.Avalonia.Enums.Icon.Error
+                ).ShowAsync();
+            return;
+        }
+
+        router?.Dispose();
+
+        try {
+            router = new EntwareClient(username: username, ip: ip, port: port, password: password);
+            string status = router.CheckInitialConnection();
+
+            if (status == "SUCCESSFULL")
+                sshData.ConnectionStatus = Localizer.Instance["sshPanel.success"];
+        }
+        catch (Exception ex) {
+            sshData.ConnectionStatus = ex.Message;
+        }
+
+        sshData.ShowConnectionStatus = true;
+    }
+
     void ShowMyConfig(object? sender, RoutedEventArgs e) {
         ToggleButton? button = sender as ToggleButton;
         if (button?.IsChecked != null) {
             myConfigScrollBar.IsVisible = (bool)button.IsChecked;
-            myServersScrollBar.IsVisible = (bool)!button.IsChecked;
+            myServersBorder.IsVisible = (bool)!button.IsChecked;
         }
     }
 
@@ -340,8 +383,9 @@ public partial class MainWindow : Window {
 
         // BLOCK ROUTER BUTTONS
         showMyConfigButton.IsVisible = false;
-        backupMyConfigButton.IsVisible = false;
-        replaceMyConfigButton.IsVisible = false;
+        saveMyConfigButton.IsVisible = false;
+        backupEntwareButton.IsVisible = false;
+        disconnectButton.IsVisible = false;
     }
 
     private string GetSystemLanguage() {

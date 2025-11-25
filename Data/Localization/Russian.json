@@ -33,10 +33,11 @@
             "newServers": "НОВЫЕ",
             "myServers": "МОИ",
             "deleteServer": "УДАЛИТЬ",
-            "connectRouter": "ПОДКЛЮЧИТЬСЯ К РОУТЕРУ",
             "showMyConfig": "ПОКАЗАТЬ МОЙ КОНФИГ",
-            "backup": "БЭКАП МОЕГО КОНФИГА",
-            "replace": "ЗАМЕНИТЬ КОНФИГ"
+            "saveMyConfig": "СОХРАНИТЬ",
+            "backup": "БЭКАП ENTWARE",
+            "connectRouter": "ПОДКЛЮЧИТЬСЯ К РОУТЕРУ",
+            "disconnectRouter": "ОТКЛЮЧИТЬСЯ"
         },
         "panels": {
             "serversPanel": "СЕРВЕРЫ"
@@ -47,6 +48,20 @@
         "author": "by spinepith",
         "version": "version 0.1",
         "checkUpdates": "ПРОВЕРИТЬ ОБНОВЛЕНИЯ"
+    },
+    "sshPanel": {
+        "title": "ПОДКЛЮЧЕНИЕ К РОУТЕРУ",
+        "username": "ИМЯ ПОЛЬЗОВАТЕЛЯ:",
+        "password": "ПАРОЛЬ:",
+        "port": "ПОРТ:",
+        "connect": "ПОДКЛЮЧИТЬСЯ",
+        "success": "УСПЕШНО ПОДКЛЮЧЕНО",
+        "errors": {
+            "emptyData": "Не все поля заполнены!",
+            "connectionFailed": "Не удалось подключиться",
+            "commandFailed": "Не удалось выполнить комманду",
+            "disposed": "Вы не подключены к роутеру. Переподключитесь."
+        }
     },
     "browse": {
         "title": "Выберите текстовый файл",

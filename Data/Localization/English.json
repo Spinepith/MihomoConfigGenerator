@@ -7,7 +7,7 @@
         "presets": {
             "proxyAll": "ALL THROUGH PROXY",
             "proxyExceptRussia": "PROXY FOR ALL SITES EXCEPT RUSSIAN",
-            "proxyExceptBlocked": "PROXY FOR SITES FROM THE 'BLOCKED' LIST"
+            "proxyExceptBlocked": "PROXY FOR SITES FROM 'BLOCKED' LIST"
         },
         "buttons": {
             "ads": "BLOCK ADS, ANALYTICS, TRACKERS",
@@ -22,7 +22,7 @@
             "save": "SAVE"
         },
         "textBoxes": {
-            "browse": "PATH TO THE VLESS KEYS FILE",
+            "browse": "PATH TO VLESS KEYS FILE",
             "vless": "VLESS KEYS",
             "result": "GENERATION RESULT",
             "save": "SAVE FILE PATH"
@@ -33,10 +33,11 @@
             "newServers": "NEW",
             "myServers": "MY",
             "deleteServer": "DELETE",
-            "connectRouter": "CONNECT TO THE ROUTER",
             "showMyConfig": "SHOW MY CONFIG",
-            "backup": "BACKUP MY CONFIG",
-            "replace": "REPLACE CONFIG"
+            "saveMyConfig": "SAVE",
+            "backup": "BACKUP ENTWARE",
+            "connectRouter": "CONNECT TO ROUTER",
+            "disconnectRouter": "DISCONNECT"
         },
         "panels": {
             "serversPanel": "SERVERS"
@@ -47,6 +48,20 @@
         "author": "by spinepith",
         "version": "version 0.1",
         "checkUpdates": "CHECK UPDATES"
+    },
+    "sshPanel": {
+        "title": "CONNECT TO ROUTER",
+        "username": "USERNAME:",
+        "password": "PASSWORD:",
+        "port": "PORT:",
+        "connect": "CONNECT",
+        "success": "CONNECTED SUCCESSFULLY",
+        "errors": {
+            "emptyData": "Not all fields are filled in!",
+            "connectionFailed": "Unable to connect",
+            "commandFailed": "Failed to execute command",
+            "disposed": "You are not connected to the router. Reconnect."
+        }
     },
     "browse": {
         "title": "Select a text file",
