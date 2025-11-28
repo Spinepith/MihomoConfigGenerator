@@ -4,12 +4,11 @@ using Avalonia.Controls.Primitives;
 using Avalonia.Layout;
 using Avalonia.Threading;
 
-namespace MihomoProxyGenerator.Controls;
+namespace XKeenMihomoGenerator.Controls;
 
 public class TextLabel : TemplatedControl {
     protected override void OnApplyTemplate(TemplateAppliedEventArgs e) {
         base.OnApplyTemplate(e);
-        System.Diagnostics.Debug.WriteLine(LabelHalfWidth);
 
         if (LabelHalfWidth) {
             Grid? grid = e.NameScope.Get<Grid>("PART_Grid");
@@ -21,7 +20,7 @@ public class TextLabel : TemplatedControl {
     }
 
     public static readonly StyledProperty<bool> LabelHalfWidthProperty =
-        AvaloniaProperty.Register<TextLabel, bool>(nameof(LabelHalfWidth));
+        AvaloniaProperty.Register<TextLabel, bool>(nameof(LabelHalfWidth), true);
     public bool LabelHalfWidth {
         get => GetValue(LabelHalfWidthProperty);
         set => SetValue(LabelHalfWidthProperty, value);

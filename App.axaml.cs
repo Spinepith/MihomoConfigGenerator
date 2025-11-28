@@ -2,7 +2,7 @@
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Markup.Xaml;
 
-namespace MihomoProxyGenerator;
+namespace XKeenMihomoGenerator;
 
 public partial class App : Application {
     public override void Initialize() {

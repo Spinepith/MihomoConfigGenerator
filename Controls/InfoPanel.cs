@@ -3,7 +3,7 @@ using Avalonia.Controls.Primitives;
 using Avalonia.Interactivity;
 using System;
 
-namespace MihomoProxyGenerator.Controls;
+namespace XKeenMihomoGenerator.Controls;
 
 public class InfoPanel : TemplatedControl {
     public static readonly RoutedEvent<RoutedEventArgs> CloseEvent = RoutedEvent.Register<InfoPanel, RoutedEventArgs>("CloseEvent", RoutingStrategies.Bubble);

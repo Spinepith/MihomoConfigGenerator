@@ -3,9 +3,8 @@ using Avalonia.Controls;
 using Avalonia.Controls.Primitives;
 using Avalonia.Interactivity;
 using System;
-using System.Data;
 
-namespace MihomoProxyGenerator.Controls;
+namespace XKeenMihomoGenerator.Controls;
 
 public class SshPanel : TemplatedControl {
     public static readonly StyledProperty<string> ConnectionStatusProperty = AvaloniaProperty.Register<SshPanel, string>(nameof(ConnectionStatus));
@@ -43,6 +42,18 @@ public class SshPanel : TemplatedControl {
         get => GetValue(PortProperty);
         set => SetValue(PortProperty, value);
     }
+
+    public static readonly StyledProperty<bool> ShowConnectionButtonProperty = AvaloniaProperty.Register<SshPanel, bool>(nameof(ShowConnectionButton), true);
+    public bool ShowConnectionButton {
+        get => GetValue(ShowConnectionButtonProperty);
+        set => SetValue(ShowConnectionButtonProperty, value);
+    }
+
+    public static readonly StyledProperty<bool> EnableConnectionButtonProperty = AvaloniaProperty.Register<SshPanel, bool>(nameof(EnableConnectionButton), true);
+    public bool EnableConnectionButton {
+        get => GetValue(EnableConnectionButtonProperty);
+        set => SetValue(EnableConnectionButtonProperty, value);
+    }    
 
     public static readonly RoutedEvent<RoutedEventArgs> CloseEvent =
         RoutedEvent.Register<SshPanel, RoutedEventArgs>(nameof(ConnectionRequested), RoutingStrategies.Bubble);

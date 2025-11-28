@@ -1,7 +1,7 @@
 ﻿<Styles xmlns="https://github.com/avaloniaui"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        xmlns:controls="using:MihomoProxyGenerator.Controls"
-        xmlns:localization="using:MihomoProxyGenerator.Data.Localization">
+        xmlns:controls="using:XKeenMihomoGenerator.Controls"
+        xmlns:localization="using:XKeenMihomoGenerator.Data.Localization">
         
   <Design.PreviewWith>
     <Border Padding="20">
@@ -64,7 +64,6 @@
                               <controls:TextLabel Grid.Row="2"
                                                   Label="{localization:Localize sshPanel.username}"
                                                   Text="{Binding Username, RelativeSource={RelativeSource TemplatedParent}, Mode=TwoWay}"
-                                                  LabelHalfWidth="True"
                                                   Background="#6A70E0"
                                                   BorderBrush="White"
                                                   CornerRadius="3"
@@ -73,7 +72,6 @@
                                   <controls:TextLabel Grid.Column="0"
                                                   Label="IP:"
                                                   Text="{Binding Ip, RelativeSource={RelativeSource TemplatedParent}, Mode=TwoWay}"
-                                                  LabelHalfWidth="True"
                                                   Background="#6A70E0"
                                                   BorderBrush="White"
                                                   CornerRadius="3"
@@ -81,7 +79,6 @@
                                   <controls:TextLabel Grid.Column="1"
                                                   Label="{localization:Localize sshPanel.port}"
                                                   Text="{Binding Port, RelativeSource={RelativeSource TemplatedParent}, Mode=TwoWay}"
-                                                  LabelHalfWidth="True"
                                                   Background="#6A70E0"
                                                   BorderBrush="White"
                                                   CornerRadius="3"
@@ -90,7 +87,6 @@
                               <controls:TextLabel Grid.Row="4"
                                                   Label="{localization:Localize sshPanel.password}"
                                                   Text="{Binding Password, RelativeSource={RelativeSource TemplatedParent}, Mode=TwoWay}"
-                                                  LabelHalfWidth="True"
                                                   Background="#6A70E0"
                                                   BorderBrush="White"
                                                   CornerRadius="3"
@@ -104,7 +100,9 @@
                                       VerticalContentAlignment="Center"
                                       Background="#6A70E0"
                                       Foreground="White"
-                                      BorderThickness="0"/>
+                                      BorderThickness="0"
+                                      IsVisible="{TemplateBinding ShowConnectionButton}"
+                                      IsEnabled="{TemplateBinding EnableConnectionButton}"/>
                           </Grid>
                       </Grid>
                   </Border>
@@ -126,7 +124,7 @@
     <Style Selector="controls|SshPanel /template/ Button#closeSshButton:pressed /template/ ContentPresenter">
         <Setter Property="Background" Value="Transparent"/>
         <Setter Property="BorderBrush" Value="Transparent"/>
-        <Setter Property="Foreground" Value="#30000000"/>
+        <Setter Property="Foreground" Value="#60000000"/>
     </Style>
 
 </Styles>

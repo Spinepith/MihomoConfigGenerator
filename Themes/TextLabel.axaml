@@ -1,6 +1,6 @@
 ﻿<Styles xmlns="https://github.com/avaloniaui"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        xmlns:controls="using:MihomoProxyGenerator.Controls">
+        xmlns:controls="using:XKeenMihomoGenerator.Controls">
 
   <Design.PreviewWith>
     <Border Padding="4">
@@ -22,10 +22,12 @@
                   HorizontalAlignment="Stretch">
                 <TextBlock Grid.Column="0"
                            Text="{TemplateBinding Label}"
+                           TextWrapping="Wrap"
                            VerticalAlignment="Center"
                            Foreground="White"/>
                 <TextBox Grid.Column="1"
                          Text="{TemplateBinding Text, Mode=TwoWay}"
+                         TextWrapping="Wrap"
                          HorizontalAlignment="Stretch"
                          VerticalAlignment="Center"
                          VerticalContentAlignment="Center"

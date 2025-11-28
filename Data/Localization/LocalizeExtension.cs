@@ -2,7 +2,7 @@
 using Avalonia.Data;
 using Avalonia.Markup.Xaml;
 
-namespace MihomoProxyGenerator.Data.Localization;
+namespace XKeenMihomoGenerator.Data.Localization;
 
 public class LocalizeExtension : MarkupExtension {
     public string Key { get; set; }

@@ -1,6 +1,6 @@
 ﻿<Styles xmlns="https://github.com/avaloniaui"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        xmlns:controls="using:MihomoProxyGenerator.Controls">
+        xmlns:controls="using:XKeenMihomoGenerator.Controls">
 
     <Style Selector="Button:disabled /template/ ContentPresenter">
         <Setter Property="Foreground" Value="White"/>
@@ -68,7 +68,6 @@
                                        CaretIndex="{TemplateBinding CaretIndex}" 
                                        SelectionStart="{TemplateBinding SelectionStart}"
                                        SelectionEnd="{TemplateBinding SelectionEnd}"
-                                       Foreground="White"
                                        CaretBrush="White"
                                        SelectionBrush="{TemplateBinding SelectionBrush}"
                                        SelectionForegroundBrush="{TemplateBinding SelectionForegroundBrush}"
@@ -172,6 +171,18 @@
     </Style>
 
 
+    <Style Selector="TextBox:pointerover">
+        <Setter Property="Foreground" Value="White"/>
+    </Style>
+
+    <Style Selector="TextBox:focus">
+      <Setter Property="Foreground" Value="White"/>
+    </Style>
+
+    <Style Selector="TextBox[IsReadOnly=True]">
+        <Setter Property="Foreground" Value="Black"/>
+    </Style>
+
     <Style Selector="TextBox:pointerover /template/ Border#border">
         <Setter Property="Background" Value="#6A70E0"/>
         <Setter Property="BorderBrush" Value="#6A70E0"/>
@@ -202,9 +213,5 @@
     <Style Selector="controls|InfoPanel:pointover /template/ Border#border">
         <Setter Property="Background" Value="Transparent"/>
     </Style>
-
-    <!--<Style Selector="ms|MessageBoxStandardWindow">
-        <Setter Property="(TextBlock.Foreground)" Value="Black"/>
-    </Style>-->
 
 </Styles>

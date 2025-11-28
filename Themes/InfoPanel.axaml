@@ -1,7 +1,7 @@
 ﻿<Styles xmlns="https://github.com/avaloniaui"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        xmlns:controls="using:MihomoProxyGenerator.Controls"
-        xmlns:localization="using:MihomoProxyGenerator.Data.Localization">
+        xmlns:controls="using:XKeenMihomoGenerator.Controls"
+        xmlns:localization="using:XKeenMihomoGenerator.Data.Localization">
         
   <Design.PreviewWith>
     <Border Padding="20">
@@ -39,7 +39,7 @@
                                 VerticalAlignment="Stretch"
                                 Margin="40, 0, 40, 20">
                               <Image Grid.Row="0"
-                                     Source="avares://MihomoProxyGenerator/Assets/star.png"
+                                     Source="avares://XKeenMihomoGenerator/Assets/Images/star.png"
                                      Stretch="Uniform"
                                      StretchDirection="DownOnly"
                                      MaxWidth="280"
@@ -92,7 +92,7 @@
     <Style Selector="controls|InfoPanel /template/ Button#closeInfoButton:pressed /template/ ContentPresenter">
         <Setter Property="Background" Value="Transparent"/>
         <Setter Property="BorderBrush" Value="Transparent"/>
-        <Setter Property="Foreground" Value="#30000000"/>
+        <Setter Property="Foreground" Value="#60000000"/>
     </Style>
 
 </Styles>

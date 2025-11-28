@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.Threading.Tasks;
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Controls.Primitives;
@@ -7,20 +8,22 @@ using Avalonia.Input;
 using Avalonia.Interactivity;
 using Avalonia.Layout;
 using Avalonia.Platform.Storage;
-using MsBox.Avalonia;
-using MsBox.Avalonia.Enums;
 using Avalonia.VisualTree;
-using MihomoProxyGenerator.Data.Localization;
-using MihomoProxyGenerator.Services;
+using NetCoreAudio;
+using XKeenMihomoGenerator.Data.Localization;
+using XKeenMihomoGenerator.Services;
 
-namespace MihomoProxyGenerator.Views;
+namespace XKeenMihomoGenerator.Views;
 
 public partial class MainWindow : Window {
-    private EntwareClient router;
+    private EntwareClient? router;
+    private Player? player;
 
     public MainWindow() {
         InitializeComponent();
         ConfigureInterface();
+        SizeChanged += MainWindowSizeChanged;
+        Closing += MainWindowClosing;
     }
 
     /* LEFT PANEL */
@@ -87,6 +90,9 @@ public partial class MainWindow : Window {
             mainGrid.ColumnDefinitions[3].Width = GridLength.Auto;
             mainGrid.ColumnDefinitions[4].Width = new GridLength(2, GridUnitType.Star);
             mainGrid.Margin = new Thickness(currentMargin.Left, currentMargin.Top, 10, currentMargin.Bottom);
+
+            myConfigExpandButton.IsChecked = false;
+            ExpandTextBox(myConfigExpandButton, e);
         }
         else {
             mainGrid.ColumnDefinitions[3].Width = new GridLength(0);
@@ -99,12 +105,7 @@ public partial class MainWindow : Window {
         TopLevel? topLevel = GetTopLevel(this);
 
         if (topLevel?.StorageProvider is null) {
-            await MessageBoxManager.GetMessageBoxStandard(
-                "Error",
-                "StorageProvider is not available",
-                ButtonEnum.Ok,
-                MsBox.Avalonia.Enums.Icon.Error
-            ).ShowAsync();
+            await ShowError(Localizer.Instance["browse.errors.storage"]);
             return;
         }
 
@@ -133,12 +134,7 @@ public partial class MainWindow : Window {
                 vlessTextBox.Text = content;
             }
             catch (Exception ex) {
-                await MessageBoxManager.GetMessageBoxStandard(
-                    "Error",
-                    $"Couldn't read file: {ex.Message}",
-                    ButtonEnum.Ok,
-                    MsBox.Avalonia.Enums.Icon.Error
-                ).ShowAsync();
+                await ShowError($"{Localizer.Instance["browse.errors.read"]}\n{ex.Message}");
             }
         }
     }
@@ -194,6 +190,8 @@ public partial class MainWindow : Window {
 
                     textBoxesGrid.ColumnDefinitions[0].Width = new GridLength(1, GridUnitType.Star);
                     textBoxesGrid.ColumnDefinitions[1].Width = new GridLength(0);
+                    
+                    textBoxesGrid.ColumnSpacing = 0;
                 }
                 else if (button.Name == "rightExpandButton") {
                     resultPanel.IsVisible = true;
@@ -202,16 +200,24 @@ public partial class MainWindow : Window {
 
                     textBoxesGrid.ColumnDefinitions[0].Width = new GridLength(0);
                     textBoxesGrid.ColumnDefinitions[1].Width = new GridLength(1, GridUnitType.Star);
-                }
 
-                textBoxesGrid.ColumnSpacing = 0;
+                    textBoxesGrid.ColumnSpacing = 0;
+                }
+                else if (button.Name == "myConfigExpandButton") {
+                    mainGrid.ColumnDefinitions[4].Width = new GridLength(6, GridUnitType.Star);
+                }
             }
             else {
-                vlessPanel.IsVisible = true;
-                resultPanel.IsVisible = true;
-                textBoxesGrid.ColumnSpacing = 10;
-                textBoxesGrid.ColumnDefinitions[0].Width = new GridLength(1, GridUnitType.Star);
-                textBoxesGrid.ColumnDefinitions[1].Width = new GridLength(1, GridUnitType.Star);
+                if (button.Name != "myConfigExpandButton") {
+                    vlessPanel.IsVisible = true;
+                    resultPanel.IsVisible = true;
+                    textBoxesGrid.ColumnSpacing = 10;
+                    textBoxesGrid.ColumnDefinitions[0].Width = new GridLength(1, GridUnitType.Star);
+                    textBoxesGrid.ColumnDefinitions[1].Width = new GridLength(1, GridUnitType.Star);
+                }
+                else {
+                    mainGrid.ColumnDefinitions[4].Width = new GridLength(2, GridUnitType.Star);
+                }
             }
         }
     }
@@ -240,12 +246,7 @@ public partial class MainWindow : Window {
         TopLevel? topLevel = GetTopLevel(this);
 
         if (topLevel?.StorageProvider is null) {
-            await MessageBoxManager.GetMessageBoxStandard(
-                "Error",
-                "StorageProvider is not available",
-                ButtonEnum.Ok,
-                MsBox.Avalonia.Enums.Icon.Error
-            ).ShowAsync();
+            await ShowError(Localizer.Instance["save.errors.storage"]);
             return;
         }
 
@@ -267,25 +268,39 @@ public partial class MainWindow : Window {
                 await using var stream = await file.OpenWriteAsync();
                 using var streamWriter = new StreamWriter(stream);
                 await streamWriter.WriteAsync(resultTextBox.Text ?? "");
+                 saveTextBox.Text = file.Path.LocalPath;
             }
             catch (Exception ex) {
-                await MessageBoxManager.GetMessageBoxStandard(
-                    "Error",
-                    $"Couldn't save file: {ex.Message}",
-                    ButtonEnum.Ok,
-                    MsBox.Avalonia.Enums.Icon.Error
-                ).ShowAsync();
+                await ShowError($"{Localizer.Instance["save.errors.save"]}\n{ex.Message}");
             }
         }
     }
 
     /* RIGHT PANEL */
     private void ShowNewServers(object? sender, RoutedEventArgs e) {
+        if (newServersBlock.Children.Count > 0)
+            newServersPanel.IsVisible = true;
+        else
+            newServersPanel.IsVisible = false;
+
+        myServersPanel.IsVisible = false;
         routerButtonsPanel.IsVisible = false;
+        myConfigExpandButton.IsChecked = false;
+        ExpandTextBox(myConfigExpandButton, e);
+
+        rightPanelGrid.RowDefinitions[2].Height = new GridLength(0);
     }
 
     private void ShowMyServers(object? sender, RoutedEventArgs e) {
+        if (router == null || !router.CheckInitialConnection())
+            myServersPanel.IsVisible = false;
+        else
+            myServersPanel.IsVisible = true;
+
+        newServersPanel.IsVisible = false;
         routerButtonsPanel.IsVisible = true;
+
+        rightPanelGrid.RowDefinitions[2].Height = GridLength.Auto;
     }
 
     private void OpenSshPanel(object? sender, RoutedEventArgs e) {
@@ -294,6 +309,8 @@ public partial class MainWindow : Window {
 
     private void CloseSshPanel(object? sender, RoutedEventArgs e) {
         sshPanel.IsVisible = false;
+        sshData.ShowConnectionStatus = false;
+        sshData.ConnectionStatus = "";
     }
 
     private async void ConnectToRouter(object? sender, RoutedEventArgs e) {
@@ -303,37 +320,108 @@ public partial class MainWindow : Window {
         string password = sshData.Password;
 
         if (string.IsNullOrWhiteSpace(username) || string.IsNullOrWhiteSpace(ip) || string.IsNullOrWhiteSpace(port) || string.IsNullOrWhiteSpace(password)) {
-            await MessageBoxManager.GetMessageBoxStandard(
-                    "Error",
-                    Localizer.Instance["sshPanel.errors.emptyData"],
-                    ButtonEnum.Ok,
-                    MsBox.Avalonia.Enums.Icon.Error
-                ).ShowAsync();
+            sshData.ShowConnectionStatus = true;
+            sshData.ConnectionStatus = Localizer.Instance["sshPanel.errors.emptyData"];
             return;
         }
 
-        router?.Dispose();
-
-        try {
-            router = new EntwareClient(username: username, ip: ip, port: port, password: password);
-            string status = router.CheckInitialConnection();
-
-            if (status == "SUCCESSFULL")
-                sshData.ConnectionStatus = Localizer.Instance["sshPanel.success"];
-        }
-        catch (Exception ex) {
-            sshData.ConnectionStatus = ex.Message;
-        }
-
+        router = new EntwareClient(username, ip, port, password);
+        
         sshData.ShowConnectionStatus = true;
+        sshData.EnableConnectionButton = false;
+        sshData.ConnectionStatus = Localizer.Instance["sshPanel.connecting"];
+
+        string connectionStatus = await router.ConnectAsync();
+
+        sshData.EnableConnectionButton = true;
+
+        if (connectionStatus == "SUCCESS") {
+            if (player is null)
+                player = new Player();
+            await player.Play(Path.Combine("Assets", "Sounds", "connected.wav"));
+            
+            sshData.ConnectionStatus = Localizer.Instance["sshPanel.success"];
+            sshData.ShowConnectionButton = false;
+
+            connectButton.IsVisible = false;
+            myServersPanel.IsVisible = true;
+            showMyConfigButton.IsVisible = true;
+            backupEntwareButton.IsVisible = true;
+            disconnectButton.IsVisible = true;
+
+            routerButtonsPanel.RowSpacing = 4;
+        }
+        else
+            sshData.ConnectionStatus = connectionStatus;
     }
 
-    void ShowMyConfig(object? sender, RoutedEventArgs e) {
+    private async void DisconnectRouter(object? sender, RoutedEventArgs e) {
+        router?.Disconnect();
+        
+        if (player is null)
+            player = new Player();
+        await player.Play(Path.Combine("Assets", "Sounds", "disconnected.wav"));
+
+        myConfigBlock.Text = "";
+        myConfigBlock.Tag = null;
+
+        sshData.ShowConnectionButton = true;
+
+        reloadMyConfigButton.IsEnabled = false;
+        showMyConfigButton.IsChecked = false;
+
+        connectButton.IsVisible = true;
+        myServersPanel.IsVisible = false;
+        myConfigButtons.IsVisible = false;
+        showMyConfigButton.IsVisible = false;
+        backupEntwareButton.IsVisible = false;
+        disconnectButton.IsVisible = false;
+
+        routerButtonsPanel.RowSpacing = 0;
+    }
+
+    private async void ShowMyConfig(object? sender, RoutedEventArgs e) {
         ToggleButton? button = sender as ToggleButton;
         if (button?.IsChecked != null) {
             myConfigScrollBar.IsVisible = (bool)button.IsChecked;
-            myServersBorder.IsVisible = (bool)!button.IsChecked;
+            myConfigButtons.IsVisible = (bool)button.IsChecked;
+            backupEntwareButton.IsVisible = (bool)!button.IsChecked;
+
+            myConfigExpandButton.Padding = reloadMyConfigButton.Padding;
+
+            myConfigExpandButton.MaxHeight = connectButton.Bounds.Height;
+            reloadMyConfigButton.MaxHeight = connectButton.Bounds.Height;
+
+            if (button.IsChecked == true && router != null && myConfigBlock.Tag as string != "loaded") {
+                string myConfig = await router.GetUserConfigAsync();
+
+                if (myConfig.StartsWith(nameof(EntwareClient))) {
+                    await ShowError(myConfig);
+                    return;
+                }
+
+                reloadMyConfigButton.IsEnabled = false;
+                myConfigBlock.Text = myConfig;
+                myConfigBlock.Tag = "loaded";
+            }
+            else if (button.IsChecked == false) {
+                myConfigExpandButton.IsChecked = false;
+                ExpandTextBox(myConfigExpandButton, e);
+            }
         }
+    }
+
+    private void OnMyConfigChanged(object? sender, TextChangedEventArgs e) {
+        if (myConfigBlock.Tag as string == "loaded")
+            reloadMyConfigButton.IsEnabled = true;
+    }
+
+    private void SaveMyConfig(object? sender, RoutedEventArgs e) {
+        reloadMyConfigButton.IsEnabled = false;
+    }
+    private void ReloadMyConfig(object? sender, RoutedEventArgs e) {
+        myConfigBlock.Tag = null;
+        reloadMyConfigButton.IsEnabled = false;
     }
 
 
@@ -382,10 +470,11 @@ public partial class MainWindow : Window {
         myConfigScrollBar.IsVisible = false;
 
         // BLOCK ROUTER BUTTONS
+        myConfigButtons.IsVisible = false;
         showMyConfigButton.IsVisible = false;
-        saveMyConfigButton.IsVisible = false;
         backupEntwareButton.IsVisible = false;
         disconnectButton.IsVisible = false;
+        reloadMyConfigButton.IsEnabled = false;
     }
 
     private string GetSystemLanguage() {
@@ -416,5 +505,26 @@ public partial class MainWindow : Window {
 
         var topLevel = GetTopLevel(this);
         topLevel?.FocusManager?.ClearFocus();
+    }
+
+    private async Task ShowError(string message) {
+        await ErrorDialog.Show(this, message);
+    }
+
+    private void MainWindowSizeChanged(object? sender, SizeChangedEventArgs e) {
+        if (e.NewSize.Width < 1200) {
+            myConfigExpandButton.IsChecked = false;
+            myConfigExpandButton.IsEnabled = false;
+            ExpandTextBox(myConfigExpandButton, e);
+        }
+        else
+            myConfigExpandButton.IsEnabled = true;
+    }
+
+    private void MainWindowClosing(object? sender, System.ComponentModel.CancelEventArgs e) {
+        if (router != null) {
+            router.Dispose();
+            System.Diagnostics.Debug.WriteLine("ROUTER DISPOSED");
+        }
     }
 }

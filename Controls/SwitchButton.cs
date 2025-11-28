@@ -4,7 +4,7 @@ using Avalonia.Controls.Primitives;
 using Avalonia.Layout;
 using System.Linq;
 
-namespace MihomoProxyGenerator.Controls;
+namespace XKeenMihomoGenerator.Controls;
 
 public class SwitchButton : ItemsControl {
     public static readonly StyledProperty<bool> IsRadioProperty = AvaloniaProperty.Register<SwitchButton, bool>(nameof(IsRadio), true);

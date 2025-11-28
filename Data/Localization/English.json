@@ -18,7 +18,7 @@
         "buttons": {
             "browse": "BROWSE",
             "generate": "GENERATE",
-            "appendToFile": "APPEND VPSs TO FILE",
+            "appendToFile": "APPEND VPSs TO CONFIG",
             "save": "SAVE"
         },
         "textBoxes": {
@@ -55,19 +55,31 @@
         "password": "PASSWORD:",
         "port": "PORT:",
         "connect": "CONNECT",
+        "connecting": "> CONNECTING <",
         "success": "CONNECTED SUCCESSFULLY",
         "errors": {
-            "emptyData": "Not all fields are filled in!",
+            "emptyData": "Not all fields are filled in",
             "connectionFailed": "Unable to connect",
             "commandFailed": "Failed to execute command",
-            "disposed": "You are not connected to the router. Reconnect."
+            "disposed": "You are not connected to the router. Try to reconnect"
         }
     },
     "browse": {
         "title": "Select a text file",
-        "fileType": "Text files"
+        "fileType": "Text files",
+        "errors": {
+            "storage": "StorageProvider is not available",
+            "read": "Couldn't read file"
+        }
     },
     "save": {
-        "title": "Save file"
+        "title": "Save file",
+        "errors": {
+            "storage": "StorageProvider is not available",
+            "save": "Couldn't save file"
+        }
+    },
+    "error": {
+        "title": "ERROR"
     }
 }

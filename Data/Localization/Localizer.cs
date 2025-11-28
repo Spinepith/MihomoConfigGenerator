@@ -3,7 +3,7 @@ using System.ComponentModel;
 using System.IO;
 using System.Text.Json;
 
-namespace MihomoProxyGenerator.Data.Localization;
+namespace XKeenMihomoGenerator.Data.Localization;
 
 public class Localizer : INotifyPropertyChanged {
     public static Localizer Instance { get; } = new Localizer();

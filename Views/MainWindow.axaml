@@ -2,14 +2,14 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:controls="using:MihomoProxyGenerator.Controls"
-        xmlns:localization="using:MihomoProxyGenerator.Data.Localization"
-        x:Class="MihomoProxyGenerator.Views.MainWindow"
+        xmlns:controls="using:XKeenMihomoGenerator.Controls"
+        xmlns:localization="using:XKeenMihomoGenerator.Data.Localization"
+        x:Class="XKeenMihomoGenerator.Views.MainWindow"
         MinWidth="960"
         MinHeight="480"
         Width="1440"
         Height="720"
-        Title="Mihomo Proxy Generator"
+        Title="XKeen Mihomo Generator"
         Background="#8C92FF">
 
 
@@ -251,7 +251,7 @@
                             BorderThickness="0"
                             Click="OpenInfoPanel">
 
-                        <Image Source="avares://MihomoProxyGenerator/Assets/info.png"
+                        <Image Source="avares://XKeenMihomoGenerator/Assets/Images/info.png"
                                Stretch="Uniform"
                                StretchDirection="DownOnly"
                                MaxWidth="20"                  
@@ -514,9 +514,12 @@
                           ResizeBehavior="PreviousAndNext"
                           ShowsPreview="True"/>
 
-            <Grid Grid.Column="4" x:Name="rightPanelGrid" RowDefinitions="Auto, *, Auto" RowSpacing="10">
+            <Grid Grid.Column="4" x:Name="rightPanelGrid" RowDefinitions="Auto, *, Auto">
 
-                <controls:SwitchButton Grid.Row="0" Orientation="Horizontal" CornerRadius="3">
+                <controls:SwitchButton Grid.Row="0"
+                                       Orientation="Horizontal"
+                                       CornerRadius="3"
+                                       Margin="0, 0, 0, 10">
                     
                     <ToggleButton x:Name="newServersButton"
                                   Content="{localization:Localize rightPanel.buttons.newServers}"
@@ -612,7 +615,8 @@
                                          BorderBrush="#6A70E0"
                                          Padding="10"
                                          GotFocus="GotFocusTextBox"
-                                         LostFocus="LostFocusTextBox"/>
+                                         LostFocus="LostFocusTextBox"
+                                         TextChanged="OnMyConfigChanged"/>
 
                             </ScrollViewer>
 
@@ -622,9 +626,13 @@
 
                 </Grid>
 
-                <StackPanel x:Name="routerButtonsPanel" Grid.Row="2" Spacing="4">
+                <Grid Grid.Row="2"
+                      x:Name="routerButtonsPanel"
+                      RowDefinitions="*, *, *"
+                      Margin="0, 10, 0, 0">
 				
-                    <ToggleButton x:Name="showMyConfigButton"
+                    <ToggleButton Grid.Row="0"
+                                  x:Name="showMyConfigButton"
                                   TextBlock.TextWrapping="Wrap"
                                   TextBlock.TextAlignment="Center"
                                   Content="{localization:Localize rightPanel.buttons.showMyConfig}"
@@ -634,23 +642,57 @@
                                   VerticalContentAlignment="Center"
                                   Foreground="White"
                                   BorderThickness="0"
-                                  CornerRadius="0"
                                   Click="ShowMyConfig"/>
 
-                    <ToggleButton x:Name="saveMyConfigButton"
-                                  TextBlock.TextWrapping="Wrap"
-                                  TextBlock.TextAlignment="Center"
-                                  Content="{localization:Localize rightPanel.buttons.saveMyConfig}"
-                                  HorizontalAlignment="Stretch"
-                                  VerticalAlignment="Stretch"
-                                  HorizontalContentAlignment="Center"
-                                  VerticalContentAlignment="Center"
-                                  Foreground="White"
-                                  BorderThickness="0"
-                                  CornerRadius="0"
-                                  Click=""/>
+                    <Grid Grid.Row="1"
+                          x:Name="myConfigButtons"
+                          ColumnDefinitions="Auto, *, Auto"
+                          ColumnSpacing="4">
+						
+                        <ToggleButton Grid.Column="0"
+                                      x:Name="myConfigExpandButton"
+                                      Content="&#x26F6;"
+                                      HorizontalContentAlignment="Center"
+                                      VerticalContentAlignment="Center"
+                                      HorizontalAlignment="Stretch"
+                                      VerticalAlignment="Stretch"
+                                      Background="#6A70E0"
+                                      Foreground="White"
+                                      BorderThickness="0"
+                                      Click="ExpandTextBox"/>
 
-                    <Button x:Name="backupEntwareButton"
+                        <Button Grid.Column="1"
+                                x:Name="saveMyConfigButton"
+                                TextBlock.TextWrapping="Wrap"
+                                TextBlock.TextAlignment="Center"
+                                Content="{localization:Localize rightPanel.buttons.saveMyConfig}"
+                                HorizontalAlignment="Stretch"
+                                VerticalAlignment="Stretch"
+                                HorizontalContentAlignment="Center"
+                                VerticalContentAlignment="Center"
+                                Background="#6A70E0"
+                                Foreground="White"
+                                BorderThickness="0"
+                                Click="SaveMyConfig"/>
+
+                        <Button Grid.Column="2"
+                                x:Name="reloadMyConfigButton"
+                                TextBlock.TextWrapping="Wrap"
+                                TextBlock.TextAlignment="Center"
+                                Content="&#x21bb;"
+                                HorizontalAlignment="Stretch"
+                                VerticalAlignment="Stretch"
+                                HorizontalContentAlignment="Center"
+                                VerticalContentAlignment="Center"
+                                Background="#6A70E0"
+                                Foreground="White"
+                                BorderThickness="0"
+                                Click="ReloadMyConfig"/>
+
+                    </Grid>
+
+                    <Button Grid.Row="1"
+                            x:Name="backupEntwareButton"
                             TextBlock.TextWrapping="Wrap"
                             TextBlock.TextAlignment="Center"
                             Content="{localization:Localize rightPanel.buttons.backup}"
@@ -661,10 +703,10 @@
                             Background="#6A70E0"
                             Foreground="White"
                             BorderThickness="0"
-                            IsEnabled="False"
                             Click=""/>         
                 
-                    <Button x:Name="connectButton"
+                    <Button Grid.Row="2"
+                            x:Name="connectButton"
                             TextBlock.TextWrapping="Wrap"
                             TextBlock.TextAlignment="Center"
                             Content="{localization:Localize rightPanel.buttons.connectRouter}"
@@ -675,7 +717,8 @@
                             BorderThickness="0"
                             Click="OpenSshPanel"/>
 
-                    <Button x:Name="disconnectButton"
+                    <Button Grid.Row="2"
+                            x:Name="disconnectButton"
                             TextBlock.TextWrapping="Wrap"
                             TextBlock.TextAlignment="Center"
                             Content="{localization:Localize rightPanel.buttons.disconnectRouter}"
@@ -684,9 +727,9 @@
                             Background="#6A70E0"
                             Foreground="White"
                             BorderThickness="0"
-                            Click=""/>
+                            Click="DisconnectRouter"/>
 
-                </StackPanel>
+                </Grid>
 
             </Grid>
 

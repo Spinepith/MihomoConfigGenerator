@@ -1,23 +1,23 @@
 ﻿<Application xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             x:Class="MihomoProxyGenerator.App"
+             x:Class="XKeenMihomoGenerator.App"
              RequestedThemeVariant="Light">
              <!-- "Default" ThemeVariant follows system theme variant. "Dark" or "Light" are other available options. -->
 
     <Application.Styles>
         <FluentTheme />
-        <StyleInclude Source="avares://MihomoProxyGenerator/Styles/CustomStyles.axaml"/>
-        <StyleInclude Source="avares://MihomoProxyGenerator/Themes/DropdownPanel.axaml"/>
-        <StyleInclude Source="avares://MihomoProxyGenerator/Themes/TextLabel.axaml"/>
-        <StyleInclude Source="avares://MihomoProxyGenerator/Themes/LabeledPanel.axaml"/>
-        <StyleInclude Source="avares://MihomoProxyGenerator/Themes/InfoPanel.axaml"/>
-        <StyleInclude Source="avares://MihomoProxyGenerator/Themes/SshPanel.axaml"/>
-        <StyleInclude Source="avares://MihomoProxyGenerator/Themes/SwitchButton.axaml"/>
+        <StyleInclude Source="avares://XKeenMihomoGenerator/Styles/CustomStyles.axaml"/>
+        <StyleInclude Source="avares://XKeenMihomoGenerator/Themes/DropdownPanel.axaml"/>
+        <StyleInclude Source="avares://XKeenMihomoGenerator/Themes/TextLabel.axaml"/>
+        <StyleInclude Source="avares://XKeenMihomoGenerator/Themes/LabeledPanel.axaml"/>
+        <StyleInclude Source="avares://XKeenMihomoGenerator/Themes/InfoPanel.axaml"/>
+        <StyleInclude Source="avares://XKeenMihomoGenerator/Themes/SshPanel.axaml"/>
+        <StyleInclude Source="avares://XKeenMihomoGenerator/Themes/SwitchButton.axaml"/>
 
         <Style Selector="Window">
             <Setter Property="Icon">
                 <Setter.Value>
-                    <WindowIcon>avares://MihomoProxyGenerator/Assets/star.png</WindowIcon>
+                    <WindowIcon>avares://XKeenMihomoGenerator/Assets/Images/star.png</WindowIcon>
                 </Setter.Value>
             </Setter>
         </Style>

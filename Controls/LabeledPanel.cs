@@ -4,7 +4,7 @@ using Avalonia.Controls.Primitives;
 using Avalonia.Layout;
 using Avalonia.Metadata;
 
-namespace MihomoProxyGenerator.Controls;
+namespace XKeenMihomoGenerator.Controls;
 
 public class LabeledPanel : TemplatedControl {
     public static readonly StyledProperty<string> LabelProperty = AvaloniaProperty.Register<LabeledPanel, string>(nameof(Label), "Label");

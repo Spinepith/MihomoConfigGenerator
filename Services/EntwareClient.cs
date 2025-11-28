@@ -1,151 +1,183 @@
 ﻿using System;
+using System.Threading;
 using System.Threading.Tasks;
 using Renci.SshNet;
-using MihomoProxyGenerator.Data.Localization;
-using Renci.SshNet.Common;
+using XKeenMihomoGenerator.Data.Localization;
 
-namespace MihomoProxyGenerator.Services;
+namespace XKeenMihomoGenerator.Services;
 
 public class EntwareClient : IDisposable {
     private readonly string username;
-    private readonly string ip;
+    private readonly string host;
     private readonly string port;
     private readonly string password;
 
     private SshClient? sshClient;
-    private SftpClient? sftpClient;
 
     private bool disposed;
 
-    public EntwareClient(string username, string ip, string port, string password) {
+    private static readonly TimeSpan ConnectionTimeout = TimeSpan.FromSeconds(15);
+
+    public EntwareClient(string username, string host, string port, string password) {
         this.username = username;
-        this.ip = ip;
+        this.host = host;
         this.port = port;
         this.password = password;
 
         disposed = false;
+    }
+
+    public async Task<string> ConnectAsync() {
+        if (disposed)
+            return $"{nameof(EntwareClient)} {Localizer.Instance["sshPanel.errors.disposed"]}";
+
+        if (!IsConnected()) {
+            try {
+                CleanupClient();
+
+                var connectionInfo = new ConnectionInfo(
+                    host: host,
+                    port: int.Parse(port),
+                    username: username,
+                    authenticationMethods: new PasswordAuthenticationMethod(username, password)
+                ) {
+                    Timeout = ConnectionTimeout
+                };
+
+                sshClient = new SshClient(connectionInfo);
+                await sshClient.ConnectAsync(CancellationToken.None);
+            }
+            catch (Exception ex) {
+                CleanupClient();
+                return $"{nameof(EntwareClient)} CONNECTION_ERROR\n{ex.Message}";
+            }
+        }
+
+        return "SUCCESS";
+    }
+
+    public void Disconnect() {
+        if (!disposed)
+            CleanupClient();
+    }
+
+    public bool CheckInitialConnection() {
+        return IsConnected();
+    }
+
+    public async Task<string> GetUserConfigAsync() {
+        if (disposed)
+            return $"{nameof(EntwareClient)} {Localizer.Instance["sshPanel.errors.disposed"]}";
 
         try {
-            System.Diagnostics.Debug.WriteLine("Пытаемся подключиться по SSH");
-            sshClient = new SshClient(ip, int.Parse(port), username, password);
-            sshClient.Connect();
+            return await ReadOperationAsync(async () => {
+                return await Task.Run(() => {
+                    using (SshCommand? cmd = sshClient!.CreateCommand($"cat ~/../etc/mihomo/config.yaml")) {
+                        var result = cmd.Execute();
 
-            System.Diagnostics.Debug.WriteLine("SSH подключен, проверяем команды");
-            var testCommand = sshClient.CreateCommand("pwd");
-            string result = testCommand.Execute();
-            System.Diagnostics.Debug.WriteLine($"Команда выполнена: {result}");
+                        if (cmd.ExitStatus != 0)
+                            throw new Exception($"{nameof(EntwareClient)} {Localizer.Instance["sshPanel.errors.commandFailed"]}\n{cmd.Error}");
 
-            System.Diagnostics.Debug.WriteLine("Пытаемся подключиться по SFTP");
-            sftpClient = new SftpClient(ip, int.Parse(port), username, password);
-            sftpClient.Connect();
-            System.Diagnostics.Debug.WriteLine("SFTP подключен успешно");
-        }
-        catch (SshAuthenticationException ex) {
-            Dispose();
-            throw new Exception($"Ошибка аутентификации: {ex.Message}");
-        }
-        catch (SshConnectionException ex) {
-            Dispose();
-            throw new Exception($"Ошибка подключения SSH: {ex.Message}");
+                        return result;
+                    }
+                });
+            },
+            $"{nameof(EntwareClient)} {Localizer.Instance["sshPanel.errors.commandFailed"]}");
         }
         catch (Exception ex) {
-            Dispose();
-            throw new Exception($"Общая ошибка: {ex.Message}");
+            return $"{nameof(EntwareClient)} {ex.Message}";
         }
     }
 
-    public string CheckInitialConnection() {
-        return IsConnected() ? "SUCCESSFULL" : "NOT_CONNECTED";
-    }
+    //public async Task SaveUserConfigAsync(string text) {
 
-    public async Task<string> ExecuteCommand(string command) {
-        CheckDisposed();
+    //}
 
-        return await Task.Run(() => {
-            return ReadOperation(() => {
-                SshCommand? cmd = sshClient!.CreateCommand(command);
-                var result = cmd.Execute();
+    //public async Task<X> BackupEntwareAsync() {
 
-                if (cmd.ExitStatus != 0)
-                    throw new Exception(cmd.Error);
+    //}
 
-                return result;
+    public async Task<string> ExecuteCommandAsync(string command) {
+        if (disposed)
+            return $"{nameof(EntwareClient)} {Localizer.Instance["sshPanel.errors.disposed"]}";
+
+        try {
+            return await ReadOperationAsync(async () => {
+                return await Task.Run(() => {
+                    using (SshCommand? cmd = sshClient!.CreateCommand(command)) {
+                        var result = cmd.Execute();
+
+                        if (cmd.ExitStatus != 0)
+                            throw new Exception($"{nameof(EntwareClient)} {Localizer.Instance["sshPanel.errors.commandFailed"]}\n{cmd.Error}");
+
+                        return result;
+                    }
+                });
             },
-            Localizer.Instance["sshPanel.errors.commandFailed"]);
-        });
-    }
-
-    private void Connect() {
-        CheckDisposed();
-
-        if (sshClient is null || !sshClient.IsConnected) {
-            sshClient?.Dispose();
-            sshClient = new SshClient(username: username, host: ip, port: int.Parse(port), password: password);
-            sshClient.Connect();
+            $"{nameof(EntwareClient)} {Localizer.Instance["sshPanel.errors.commandFailed"]}");
         }
-
-        if (sftpClient is null || !sftpClient.IsConnected) {
-            sftpClient?.Dispose();
-            sftpClient = new SftpClient(username: username, host: ip, port: int.Parse(port), password: password);
-            sftpClient.Connect();
+        catch (Exception ex) {
+            return $"{nameof(EntwareClient)} {ex.Message}";
         }
     }
 
-    private void ForceReconnect() {
-        CheckDisposed();
+    private async Task ForceReconnectAsync() {
+        CleanupClient();
+        await ConnectAsync();
+    }
 
-        sshClient?.Dispose();
-        sftpClient?.Dispose();
+    private void CleanupClient() {
+        if (sshClient != null) {
+            if (sshClient.IsConnected)
+                sshClient.Disconnect();
 
-        sshClient = null;
-        sftpClient = null;
-
-        Connect();
+            sshClient.Dispose();
+            sshClient = null;
+        }
     }
 
     private bool IsConnected() {
-        return !disposed && sshClient?.IsConnected is true && sftpClient?.IsConnected is true;
+        return !disposed && sshClient?.IsConnected is true;
     }
 
-    private string ReadOperation(Func<string> operation, string errorMessage) {
-        CheckDisposed();
-
+    private async Task<string> ReadOperationAsync(Func<Task<string>> operation, string errorMessage) {
         try {
-            Connect();
-            return operation();
+            string connectStatus = await ConnectAsync();
+
+            if (connectStatus != "SUCCESS")
+                throw new Exception($"{nameof(EntwareClient)} {connectStatus}");
+
+            return await operation();
         }
         catch (Exception) {
             try {
-                ForceReconnect();
-                return operation();
+                await ForceReconnectAsync();
+                return await operation();
             }
             catch (Exception ex) {
-                throw new Exception($"{errorMessage}: {ex.Message}");
+                throw new Exception($"{nameof(EntwareClient)} {errorMessage}\n{ex.Message}");
             }
         }
     }
 
-    private void WriteOperation(Action operation, string errorMessage) {
-        CheckDisposed();
-
+    private async Task WriteOperationAsync(Func<Task> operation, string errorMessage) {
         try {
-            Connect();
-            operation();
+            string connectStatus = await ConnectAsync();
+
+            if (connectStatus != "SUCCESS")
+                throw new Exception($"{nameof(EntwareClient)} {connectStatus}");
+
+            await operation();
         }
         catch (Exception) {
             try {
-                ForceReconnect();
-                operation();
+                await ForceReconnectAsync();
+                await operation();
             }
             catch (Exception ex) {
-                throw new Exception($"{errorMessage}: {ex.Message}");
+                throw new Exception($"{nameof(EntwareClient)} {errorMessage}\n{ex.Message}");
             }
         }
-    }
-
-    private void CheckDisposed() {
-        if (disposed)
-            throw new ObjectDisposedException(nameof(EntwareClient), Localizer.Instance["sshPanel.errors.disposed"]);
     }
 
     public void Dispose() {
@@ -153,11 +185,7 @@ public class EntwareClient : IDisposable {
             return;
 
         try {
-            sshClient?.Disconnect();
-            sshClient?.Dispose();
-
-            sftpClient?.Disconnect();
-            sftpClient?.Dispose();
+            CleanupClient();
         }
         finally {
             disposed = true;
