@@ -35,9 +35,13 @@
             "deleteServer": "УДАЛИТЬ",
             "showMyConfig": "ПОКАЗАТЬ МОЙ КОНФИГ",
             "saveMyConfig": "СОХРАНИТЬ",
-            "backup": "БЭКАП ENTWARE",
-            "connectRouter": "ПОДКЛЮЧИТЬСЯ К РОУТЕРУ",
-            "disconnectRouter": "ОТКЛЮЧИТЬСЯ"
+            "backupEntware": "БЭКАП ENTWARE",
+            "backupConfig": "БЭКАП КОНФИГА",
+            "connectEntware": "ПОДКЛЮЧИТЬСЯ К ENTWARE",
+            "disconnectEntware": "ОТКЛЮЧИТЬСЯ",
+            "cancelBackup": "ОТМЕНИТЬ",
+            "XKeenOn": "ВКЛЮЧИТЬ XKEEN",
+            "XKeenOff": "ВЫКЛЮЧИТЬ XKEEN"
         },
         "panels": {
             "serversPanel": "СЕРВЕРЫ"
@@ -50,7 +54,7 @@
         "checkUpdates": "ПРОВЕРИТЬ ОБНОВЛЕНИЯ"
     },
     "sshPanel": {
-        "title": "ПОДКЛЮЧЕНИЕ К РОУТЕРУ",
+        "title": "ПОДКЛЮЧЕНИЕ К ENTWARE",
         "username": "ИМЯ ПОЛЬЗОВАТЕЛЯ:",
         "password": "ПАРОЛЬ:",
         "port": "ПОРТ:",
@@ -61,7 +65,7 @@
             "emptyData": "Не все поля заполнены",
             "connectionFailed": "Не удалось подключиться",
             "commandFailed": "Не удалось выполнить комманду",
-            "disposed": "Вы не подключены к роутеру. Попробуйте переподключиться"
+            "disposed": "Вы не подключены к entware. Попробуйте переподключиться"
         }
     },
     "browse": {
@@ -76,7 +80,8 @@
         "title": "Сохранить файл",
         "errors": {
             "storage": "StorageProvider недоступен",
-            "save": "Не удалось сохранить файл"
+            "save": "Не удалось сохранить файл",
+            "toTempDirectory": "Сохранено в"
         }
     },
     "error": {

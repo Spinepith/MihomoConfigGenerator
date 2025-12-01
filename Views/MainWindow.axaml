@@ -312,7 +312,8 @@
                           HorizontalAlignment="Center"
                           VerticalAlignment="Stretch"
                           ResizeBehavior="PreviousAndNext"
-                          ShowsPreview="True"/>
+                          ShowsPreview="False"
+                          DragDelta=""/>
 
             <Grid Grid.Column="2" RowDefinitions="Auto, *, Auto, Auto" RowSpacing="10">
 			
@@ -498,7 +499,7 @@
                             Background="#6A70E0"
                             Foreground="White"
                             BorderThickness="0"
-                            Click="Save"/>
+                            Click="SaveGeneratedResult"/>
 
                 </Grid>
 
@@ -512,7 +513,8 @@
                           HorizontalAlignment="Center"
                           VerticalAlignment="Stretch"
                           ResizeBehavior="PreviousAndNext"
-                          ShowsPreview="True"/>
+                          ShowsPreview="False"
+                          DragDelta=""/>
 
             <Grid Grid.Column="4" x:Name="rightPanelGrid" RowDefinitions="Auto, *, Auto">
 
@@ -631,21 +633,8 @@
                       RowDefinitions="*, *, *"
                       Margin="0, 10, 0, 0">
 				
-                    <ToggleButton Grid.Row="0"
-                                  x:Name="showMyConfigButton"
-                                  TextBlock.TextWrapping="Wrap"
-                                  TextBlock.TextAlignment="Center"
-                                  Content="{localization:Localize rightPanel.buttons.showMyConfig}"
-                                  HorizontalAlignment="Stretch"
-                                  VerticalAlignment="Stretch"
-                                  HorizontalContentAlignment="Center"
-                                  VerticalContentAlignment="Center"
-                                  Foreground="White"
-                                  BorderThickness="0"
-                                  Click="ShowMyConfig"/>
-
-                    <Grid Grid.Row="1"
-                          x:Name="myConfigButtons"
+                    <Grid Grid.Row="0"
+                          x:Name="expandConfigUpdateButtons"
                           ColumnDefinitions="Auto, *, Auto"
                           ColumnSpacing="4">
 						
@@ -661,19 +650,18 @@
                                       BorderThickness="0"
                                       Click="ExpandTextBox"/>
 
-                        <Button Grid.Column="1"
-                                x:Name="saveMyConfigButton"
-                                TextBlock.TextWrapping="Wrap"
-                                TextBlock.TextAlignment="Center"
-                                Content="{localization:Localize rightPanel.buttons.saveMyConfig}"
-                                HorizontalAlignment="Stretch"
-                                VerticalAlignment="Stretch"
-                                HorizontalContentAlignment="Center"
-                                VerticalContentAlignment="Center"
-                                Background="#6A70E0"
-                                Foreground="White"
-                                BorderThickness="0"
-                                Click="SaveMyConfig"/>
+                        <ToggleButton Grid.Column="1"
+                                      x:Name="showMyConfigButton"
+                                      TextBlock.TextWrapping="Wrap"
+                                      TextBlock.TextAlignment="Center"
+                                      Content="{localization:Localize rightPanel.buttons.showMyConfig}"
+                                      HorizontalAlignment="Stretch"
+                                      VerticalAlignment="Stretch"
+                                      HorizontalContentAlignment="Center"
+                                      VerticalContentAlignment="Center"
+                                      Foreground="White"
+                                      BorderThickness="0"
+                                      Click="ShowMyConfig"/>
 
                         <Button Grid.Column="2"
                                 x:Name="reloadMyConfigButton"
@@ -689,13 +677,27 @@
                                 BorderThickness="0"
                                 Click="ReloadMyConfig"/>
 
+                        <Button Grid.Column="2"
+                                x:Name="reloadMyServersButton"
+                                TextBlock.TextWrapping="Wrap"
+                                TextBlock.TextAlignment="Center"
+                                Content="&#x21bb;"
+                                HorizontalAlignment="Stretch"
+                                VerticalAlignment="Stretch"
+                                HorizontalContentAlignment="Center"
+                                VerticalContentAlignment="Center"
+                                Background="#6A70E0"
+                                Foreground="White"
+                                BorderThickness="0"
+                                Click="ReloadMyServers"/>
+
                     </Grid>
 
                     <Button Grid.Row="1"
-                            x:Name="backupEntwareButton"
+                            x:Name="saveMyConfigButton"
                             TextBlock.TextWrapping="Wrap"
                             TextBlock.TextAlignment="Center"
-                            Content="{localization:Localize rightPanel.buttons.backup}"
+                            Content="{localization:Localize rightPanel.buttons.saveMyConfig}"
                             HorizontalAlignment="Stretch"
                             VerticalAlignment="Stretch"
                             HorizontalContentAlignment="Center"
@@ -703,13 +705,70 @@
                             Background="#6A70E0"
                             Foreground="White"
                             BorderThickness="0"
-                            Click=""/>         
+                            Click="SaveMyConfig"/>
+
+                    <Grid Grid.Row="1" x:Name="progressBarBlock">
+                    
+                        <ProgressBar x:Name="progressBar"
+                                     HorizontalAlignment="Stretch"
+                                     VerticalAlignment="Stretch"
+                                     Minimum="0"
+                                     Maximum="100"
+                                     Value="0"
+                                     Background="#7C82E0"
+                                     Foreground="#5459C5"
+                                     BorderBrush="#6A70E0"
+                                     BorderThickness="1"
+                                     CornerRadius="3"
+                                     IsHitTestVisible="False"/>
+
+                        <TextBlock x:Name="progressBarText"
+                                   HorizontalAlignment="Center"
+                                   VerticalAlignment="Center"
+                                   Foreground="White"/>
+                    
+                    </Grid>
+
+                    <Grid Grid.Row="1"
+                          x:Name="backupButtons"
+                          ColumnDefinitions="*, *"
+                          ColumnSpacing="4">
+
+                        <Button Grid.Column="0"
+                                x:Name="backupEntwareButton"
+                                TextBlock.TextWrapping="Wrap"
+                                TextBlock.TextAlignment="Center"
+                                Content="{localization:Localize rightPanel.buttons.backupEntware}"
+                                HorizontalAlignment="Stretch"
+                                VerticalAlignment="Stretch"
+                                HorizontalContentAlignment="Center"
+                                VerticalContentAlignment="Center"
+                                Background="#6A70E0"
+                                Foreground="White"
+                                BorderThickness="0"
+                                Click="Backup"/>
+
+                        <Button Grid.Column="1"
+                                x:Name="backupConfigButton"
+                                TextBlock.TextWrapping="Wrap"
+                                TextBlock.TextAlignment="Center"
+                                Content="{localization:Localize rightPanel.buttons.backupConfig}"
+                                HorizontalAlignment="Stretch"
+                                VerticalAlignment="Stretch"
+                                HorizontalContentAlignment="Center"
+                                VerticalContentAlignment="Center"
+                                Background="#6A70E0"
+                                Foreground="White"
+                                BorderThickness="0"
+                                Click="Backup"/>
+
+                    </Grid>
                 
                     <Button Grid.Row="2"
                             x:Name="connectButton"
                             TextBlock.TextWrapping="Wrap"
                             TextBlock.TextAlignment="Center"
-                            Content="{localization:Localize rightPanel.buttons.connectRouter}"
+                            Content="{localization:Localize rightPanel.buttons.connectEntware}"
                             HorizontalAlignment="Stretch"
                             VerticalAlignment="Stretch"
                             Background="#6A70E0"
@@ -721,13 +780,37 @@
                             x:Name="disconnectButton"
                             TextBlock.TextWrapping="Wrap"
                             TextBlock.TextAlignment="Center"
-                            Content="{localization:Localize rightPanel.buttons.disconnectRouter}"
+                            Content="{localization:Localize rightPanel.buttons.disconnectEntware}"
                             HorizontalAlignment="Stretch"
                             VerticalAlignment="Stretch"
                             Background="#6A70E0"
                             Foreground="White"
                             BorderThickness="0"
                             Click="DisconnectRouter"/>
+
+                    <Button Grid.Row="2"
+                            x:Name="cancelBackupButton"
+                            TextBlock.TextWrapping="Wrap"
+                            TextBlock.TextAlignment="Center"
+                            Content="{localization:Localize rightPanel.buttons.cancelBackup}"
+                            HorizontalAlignment="Stretch"
+                            VerticalAlignment="Stretch"
+                            Background="#6A70E0"
+                            Foreground="White"
+                            BorderThickness="0"
+                            Click="CancelBackup"/>
+
+                    <Button Grid.Row="2"
+                            x:Name="restartXKeenButton"
+                            TextBlock.TextWrapping="Wrap"
+                            TextBlock.TextAlignment="Center"
+                            Content="{localization:Localize rightPanel.buttons.XKeenOn}"
+                            HorizontalAlignment="Stretch"
+                            VerticalAlignment="Stretch"
+                            Background="#6A70E0"
+                            Foreground="White"
+                            BorderThickness="0"
+                            Click="RestartXKeen"/>
 
                 </Grid>
 

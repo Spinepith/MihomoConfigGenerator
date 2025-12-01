@@ -35,9 +35,13 @@
             "deleteServer": "DELETE",
             "showMyConfig": "SHOW MY CONFIG",
             "saveMyConfig": "SAVE",
-            "backup": "BACKUP ENTWARE",
-            "connectRouter": "CONNECT TO ROUTER",
-            "disconnectRouter": "DISCONNECT"
+            "backupEntware": "ENTWARE BACKUP",
+            "backupConfig": "CONFIG BACKUP",
+            "connectEntware": "CONNECT TO ENTWARE",
+            "disconnectEntware": "DISCONNECT",
+            "cancelBackup": "CANCEL",
+            "XKeenOn": "XKEEN ON",
+            "XKeenOff": "XKEEN OFF"
         },
         "panels": {
             "serversPanel": "SERVERS"
@@ -50,7 +54,7 @@
         "checkUpdates": "CHECK UPDATES"
     },
     "sshPanel": {
-        "title": "CONNECT TO ROUTER",
+        "title": "CONNECT TO ENTWARE",
         "username": "USERNAME:",
         "password": "PASSWORD:",
         "port": "PORT:",
@@ -61,7 +65,7 @@
             "emptyData": "Not all fields are filled in",
             "connectionFailed": "Unable to connect",
             "commandFailed": "Failed to execute command",
-            "disposed": "You are not connected to the router. Try to reconnect"
+            "disposed": "You are not connected to the entware. Try to reconnect"
         }
     },
     "browse": {
@@ -76,7 +80,8 @@
         "title": "Save file",
         "errors": {
             "storage": "StorageProvider is not available",
-            "save": "Couldn't save file"
+            "save": "Couldn't save file",
+            "toTempDirectory": "Saved to"
         }
     },
     "error": {

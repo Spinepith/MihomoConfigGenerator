@@ -14,8 +14,8 @@ public partial class ErrorDialog : Window {
         InitializeComponent();
 
         Opened += (_, _) => {
-            errorImage.MaxWidth = Message.Bounds.Width;
-            errorImage.MaxHeight = Message.Bounds.Height;
+            errorImage.MaxWidth = closeErrorButton.Bounds.Width;
+            errorImage.MaxHeight = closeErrorButton.Bounds.Height;
 
             player = new Player();
             player.Play(Path.Combine("Assets", "Sounds", "error.wav"));

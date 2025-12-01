@@ -1,6 +1,7 @@
 ﻿using System;
 using System.IO;
 using System.Threading.Tasks;
+using System.Collections.Generic;
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Controls.Primitives;
@@ -8,16 +9,20 @@ using Avalonia.Input;
 using Avalonia.Interactivity;
 using Avalonia.Layout;
 using Avalonia.Platform.Storage;
+using Avalonia.Threading;
 using Avalonia.VisualTree;
 using NetCoreAudio;
 using XKeenMihomoGenerator.Data.Localization;
 using XKeenMihomoGenerator.Services;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace XKeenMihomoGenerator.Views;
 
 public partial class MainWindow : Window {
-    private EntwareClient? router;
+    private EntwareClient? entware;
     private Player? player;
+
+    private List<Button>? buttonsToBlock;
 
     public MainWindow() {
         InitializeComponent();
@@ -165,19 +170,6 @@ public partial class MainWindow : Window {
         }
     }
 
-    private string GetPlaceholder(TextBox textBox) {
-        switch (textBox.Name) {
-            case "vlessTextBox":
-                return Localizer.Instance["centerPanel.textBoxes.vless"];
-
-            case "resultTextBox":
-                return Localizer.Instance["centerPanel.textBoxes.result"];
-
-            default:
-                return "";
-        }
-    }
-
     private void ExpandTextBox(object? sender, RoutedEventArgs e) {
         ToggleButton? button = sender as ToggleButton;
 
@@ -190,7 +182,7 @@ public partial class MainWindow : Window {
 
                     textBoxesGrid.ColumnDefinitions[0].Width = new GridLength(1, GridUnitType.Star);
                     textBoxesGrid.ColumnDefinitions[1].Width = new GridLength(0);
-                    
+
                     textBoxesGrid.ColumnSpacing = 0;
                 }
                 else if (button.Name == "rightExpandButton") {
@@ -236,44 +228,14 @@ public partial class MainWindow : Window {
         }
     }
 
-    private async void Save(object? sender, RoutedEventArgs e) {
+    private async void SaveGeneratedResult(object? sender, RoutedEventArgs e) {
         // РЕАЛИЗОВАТЬ ДОБАВЛЕНИЕ В ФАЙЛ [ СЕЙЧАС ТОЛЬКО ПЕРЕЗАПИСЬ ]
         if (string.IsNullOrWhiteSpace(resultTextBox.Text) || resultTextBox.Text == Localizer.Instance["centerPanel.textBoxes.result"]) {
             saveButton.IsEnabled = false;
             return;
         }
 
-        TopLevel? topLevel = GetTopLevel(this);
-
-        if (topLevel?.StorageProvider is null) {
-            await ShowError(Localizer.Instance["save.errors.storage"]);
-            return;
-        }
-
-        var saveOptions = new FilePickerSaveOptions {
-            Title = Localizer.Instance["save.title"],
-            DefaultExtension = ".yaml",
-            FileTypeChoices = new[] {
-                new FilePickerFileType("YAML Configuration") {
-                    Patterns = new[] { "*.yaml" },
-                    MimeTypes = new[] { "application/x-yaml", "text/yaml" }
-                }
-            }
-        };
-
-        var file = await topLevel.StorageProvider.SaveFilePickerAsync(saveOptions);
-
-        if (file is not null) {
-            try {
-                await using var stream = await file.OpenWriteAsync();
-                using var streamWriter = new StreamWriter(stream);
-                await streamWriter.WriteAsync(resultTextBox.Text ?? "");
-                 saveTextBox.Text = file.Path.LocalPath;
-            }
-            catch (Exception ex) {
-                await ShowError($"{Localizer.Instance["save.errors.save"]}\n{ex.Message}");
-            }
-        }
+        await Save(resultTextBox.Text);
     }
 
     /* RIGHT PANEL */
@@ -292,7 +254,7 @@ public partial class MainWindow : Window {
     }
 
     private void ShowMyServers(object? sender, RoutedEventArgs e) {
-        if (router == null || !router.CheckInitialConnection())
+        if (entware == null || !entware.CheckConnection())
             myServersPanel.IsVisible = false;
         else
             myServersPanel.IsVisible = true;
@@ -325,39 +287,53 @@ public partial class MainWindow : Window {
             return;
         }
 
-        router = new EntwareClient(username, ip, port, password);
-        
+        entware = new EntwareClient(username, ip, port, password);
+        entware.OnBusyStateChanged += EntwareOnBusyStateChanged;
+        entware.OnProgressChanged += EntwareOnProgressChanged;
+
         sshData.ShowConnectionStatus = true;
         sshData.EnableConnectionButton = false;
         sshData.ConnectionStatus = Localizer.Instance["sshPanel.connecting"];
 
-        string connectionStatus = await router.ConnectAsync();
+        string connectionStatus = await entware.ConnectAsync();
 
         sshData.EnableConnectionButton = true;
 
         if (connectionStatus == "SUCCESS") {
             if (player is null)
                 player = new Player();
-            await player.Play(Path.Combine("Assets", "Sounds", "connected.wav"));
-            
+            await player.Play(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Assets", "Sounds", "connected.wav"));
+
             sshData.ConnectionStatus = Localizer.Instance["sshPanel.success"];
             sshData.ShowConnectionButton = false;
 
             connectButton.IsVisible = false;
             myServersPanel.IsVisible = true;
-            showMyConfigButton.IsVisible = true;
-            backupEntwareButton.IsVisible = true;
+            expandConfigUpdateButtons.IsVisible = true;
+            reloadMyServersButton.IsVisible = true;
+            backupButtons.IsVisible = true;
             disconnectButton.IsVisible = true;
 
             routerButtonsPanel.RowSpacing = 4;
+
+            buttonsToBlock = new List<Button> {
+                showMyConfigButton,
+                reloadMyConfigButton,
+                reloadMyServersButton,
+                saveMyConfigButton,
+                backupEntwareButton,
+                backupConfigButton,
+                disconnectButton,
+                restartXKeenButton
+            };
         }
         else
             sshData.ConnectionStatus = connectionStatus;
     }
 
     private async void DisconnectRouter(object? sender, RoutedEventArgs e) {
-        router?.Disconnect();
-        
+        entware?.Disconnect();
+
         if (player is null)
             player = new Player();
         await player.Play(Path.Combine("Assets", "Sounds", "disconnected.wav"));
@@ -367,63 +343,180 @@ public partial class MainWindow : Window {
 
         sshData.ShowConnectionButton = true;
 
-        reloadMyConfigButton.IsEnabled = false;
+        myConfigScrollBar.IsVisible = false;
+
+        saveMyConfigButton.IsEnabled = false;
         showMyConfigButton.IsChecked = false;
 
         connectButton.IsVisible = true;
         myServersPanel.IsVisible = false;
-        myConfigButtons.IsVisible = false;
-        showMyConfigButton.IsVisible = false;
-        backupEntwareButton.IsVisible = false;
+        expandConfigUpdateButtons.IsVisible = false;
+        reloadMyConfigButton.IsVisible = false;
+        saveMyConfigButton.IsVisible = false;
+        backupButtons.IsVisible = false;
         disconnectButton.IsVisible = false;
+        restartXKeenButton.IsVisible = false; ;
+
+        myConfigExpandButton.IsChecked = false;
+        ExpandTextBox(myConfigExpandButton, e);
 
         routerButtonsPanel.RowSpacing = 0;
+    }
+
+    private void CancelBackup(object? sender, RoutedEventArgs e) {
+        entware?.CancelOperation();
+        progressBar.Value = 0;
+        progressBarBlock.IsVisible = false;
+        cancelBackupButton.IsVisible = false;
+        backupButtons.IsVisible = true;
+    }
+
+    private async void RestartXKeen(object? sender, RoutedEventArgs e) {
+        string? buttonText = (string?)restartXKeenButton.Content;
+
+        if (buttonText != null && entware != null) {
+            string on = Localizer.Instance["rightPanel.buttons.XKeenOn"];
+            string off = Localizer.Instance["rightPanel.buttons.XKeenOff"];
+            string result;
+
+            if (buttonText == on) {
+                System.Diagnostics.Debug.WriteLine(1);
+                result = await entware.XKeenStartAsync();
+                restartXKeenButton.Content = off;
+            }
+            else {
+                System.Diagnostics.Debug.WriteLine(2);
+                result = await entware.XKeenStopAsync();
+                restartXKeenButton.Content = on;
+            }
+
+            if (result.StartsWith(nameof(EntwareClient))) {
+                restartXKeenButton.Content = $"{Localizer.Instance["rightPanel.buttons.XKeenOn"]} / {Localizer.Instance["rightPanel.buttons.XKeenOff"]}";
+                await ShowError(result);
+                return;
+            }
+        }
     }
 
     private async void ShowMyConfig(object? sender, RoutedEventArgs e) {
         ToggleButton? button = sender as ToggleButton;
         if (button?.IsChecked != null) {
             myConfigScrollBar.IsVisible = (bool)button.IsChecked;
-            myConfigButtons.IsVisible = (bool)button.IsChecked;
-            backupEntwareButton.IsVisible = (bool)!button.IsChecked;
+            reloadMyConfigButton.IsVisible = (bool)button.IsChecked;
+            saveMyConfigButton.IsVisible = (bool)button.IsChecked;
+            restartXKeenButton.IsVisible = (bool)button.IsChecked;
 
-            myConfigExpandButton.Padding = reloadMyConfigButton.Padding;
+            reloadMyServersButton.IsVisible = !(bool)button.IsChecked;
+            backupButtons.IsVisible = (bool)!button.IsChecked;
+            disconnectButton.IsVisible = (bool)!button.IsChecked;
 
-            myConfigExpandButton.MaxHeight = connectButton.Bounds.Height;
-            reloadMyConfigButton.MaxHeight = connectButton.Bounds.Height;
+            if (button.IsChecked == true && entware != null) {
+                string XKeenStatus = await entware.XKeenStatusAsync();
 
-            if (button.IsChecked == true && router != null && myConfigBlock.Tag as string != "loaded") {
-                string myConfig = await router.GetUserConfigAsync();
-
-                if (myConfig.StartsWith(nameof(EntwareClient))) {
-                    await ShowError(myConfig);
-                    return;
+                if (!XKeenStatus.StartsWith(nameof(EntwareClient))) {
+                    if (XKeenStatus == "ON")
+                        restartXKeenButton.Content = Localizer.Instance["rightPanel.buttons.XKeenOff"];
+                    else if (XKeenStatus == "OFF")
+                        restartXKeenButton.Content = Localizer.Instance["rightPanel.buttons.XKeenOn"];
+                    else {
+                        restartXKeenButton.Content = $"{Localizer.Instance["rightPanel.buttons.XKeenOn"]} / {Localizer.Instance["rightPanel.buttons.XKeenOff"]}";
+                        await ShowError(XKeenStatus);
+                    }
                 }
+                else
+                    await ShowError(XKeenStatus);
 
-                reloadMyConfigButton.IsEnabled = false;
-                myConfigBlock.Text = myConfig;
-                myConfigBlock.Tag = "loaded";
-            }
-            else if (button.IsChecked == false) {
-                myConfigExpandButton.IsChecked = false;
-                ExpandTextBox(myConfigExpandButton, e);
+                if (myConfigBlock.Tag as string != "loaded") {
+                    string myConfig = await entware.GetUserConfigAsync();
+
+                    if (myConfig.StartsWith(nameof(EntwareClient))) {
+                        await ShowError(myConfig);
+                        return;
+                    }
+
+                    myConfigBlock.Tag = "loaded";
+                    myConfigBlock.Text = myConfig;
+
+                    await Task.Delay(10);
+                    saveMyConfigButton.IsEnabled = false;
+
+                    buttonsToBlock?.Remove(showMyConfigButton);
+                }
             }
         }
     }
 
     private void OnMyConfigChanged(object? sender, TextChangedEventArgs e) {
         if (myConfigBlock.Tag as string == "loaded")
-            reloadMyConfigButton.IsEnabled = true;
+            saveMyConfigButton.IsEnabled = true;
     }
 
-    private void SaveMyConfig(object? sender, RoutedEventArgs e) {
-        reloadMyConfigButton.IsEnabled = false;
-    }
-    private void ReloadMyConfig(object? sender, RoutedEventArgs e) {
-        myConfigBlock.Tag = null;
-        reloadMyConfigButton.IsEnabled = false;
+    private async void SaveMyConfig(object? sender, RoutedEventArgs e) {
+        if (entware != null && !string.IsNullOrWhiteSpace(myConfigBlock.Text)) {
+            string result = await entware.SaveUserConfigAsync(myConfigBlock.Text);
+
+            if (result.StartsWith(nameof(EntwareClient))) {
+                await ShowError(result);
+                return;
+            }
+
+            saveMyConfigButton.IsEnabled = false;
+        }
     }
 
+    private async void Backup(object? sender, RoutedEventArgs e) {
+        if (entware != null) {
+            backupButtons.IsVisible = false;
+            disconnectButton.IsVisible = false;
+            progressBarBlock.IsVisible = true;
+            cancelBackupButton.IsVisible = true;
+
+            progressBarBlock.Height = backupButtons.Bounds.Height;
+
+            string result;
+            if (sender is Button button && button.Name == "backupEntwareButton")
+                result = await entware.BackupEntwareAsync();
+            else
+                result = await entware.BackupConfigAsync();
+
+            if (!result.StartsWith(nameof(EntwareClient)))
+                await SaveDownloadedFile(result);
+            else
+                await ShowError(result);
+
+            progressBar.Value = 0;
+            progressBarBlock.IsVisible = false;
+            cancelBackupButton.IsVisible = false;
+            backupButtons.IsVisible = true;
+            disconnectButton.IsVisible = true;
+        }
+    }
+
+    private async void ReloadMyConfig(object? sender, RoutedEventArgs e) {
+        if (entware != null) {
+            myConfigBlock.Text = "";
+            buttonsToBlock?.Add(showMyConfigButton);
+
+            string myConfig = await entware.GetUserConfigAsync();
+
+            if (myConfig.StartsWith(nameof(EntwareClient))) {
+                await ShowError(myConfig);
+                return;
+            }
+
+            myConfigBlock.Tag = "loaded";
+            myConfigBlock.Text = myConfig;
+
+            await Task.Delay(10);
+            saveMyConfigButton.IsEnabled = false;
+
+            buttonsToBlock?.Remove(showMyConfigButton);
+        }
+    }
+
+    private void ReloadMyServers(object? sender, RoutedEventArgs e) {
+
+    }
 
     /* FUNCTIONS THAT PREPARE THE INTERFACE */
     private void ConfigureInterface() {
@@ -436,8 +529,8 @@ public partial class MainWindow : Window {
         //// LEFT MENU \\\\
         // HIDING THE LEFT MENU
         Thickness currentMargin = mainGrid.Margin;
-        leftPanelGrid.IsVisible = !leftPanelGrid.IsVisible;
-        leftPanelSplitter.IsVisible = !leftPanelSplitter.IsVisible;
+        leftPanelGrid.IsVisible = false;
+        leftPanelSplitter.IsVisible = false;
         mainGrid.ColumnDefinitions[0].Width = new GridLength(0);
         mainGrid.ColumnDefinitions[1].Width = new GridLength(0);
         mainGrid.Margin = new Thickness(-30, currentMargin.Top, currentMargin.Right, currentMargin.Bottom);
@@ -446,6 +539,10 @@ public partial class MainWindow : Window {
         proxySettingsDropdown.IsOpen = true;
 
         //// CENTER MENU \\\\
+        // BLOCK GRID SPLITTERS
+        leftPanelSplitter.IsEnabled = false;
+        rightPanelSplitter.IsEnabled = false;
+
         // CENTERING TEXT BOX && CONTENT INSIDE IT
         vlessTextBox.HorizontalContentAlignment = HorizontalAlignment.Center;
         vlessTextBox.VerticalContentAlignment = VerticalAlignment.Center;
@@ -470,11 +567,16 @@ public partial class MainWindow : Window {
         myConfigScrollBar.IsVisible = false;
 
         // BLOCK ROUTER BUTTONS
-        myConfigButtons.IsVisible = false;
-        showMyConfigButton.IsVisible = false;
-        backupEntwareButton.IsVisible = false;
+        expandConfigUpdateButtons.IsVisible = false;
+        saveMyConfigButton.IsVisible = false;
+        reloadMyConfigButton.IsVisible = false;
+        progressBarBlock.IsVisible = false;
+        backupButtons.IsVisible = false;
+        cancelBackupButton.IsVisible = false;
         disconnectButton.IsVisible = false;
-        reloadMyConfigButton.IsEnabled = false;
+        restartXKeenButton.IsVisible = false;
+
+        saveMyConfigButton.IsEnabled = false;
     }
 
     private string GetSystemLanguage() {
@@ -492,6 +594,124 @@ public partial class MainWindow : Window {
             default:
                 return "English";
         }
+    }
+
+    private string GetPlaceholder(TextBox textBox) {
+        switch (textBox.Name) {
+            case "vlessTextBox":
+                return Localizer.Instance["centerPanel.textBoxes.vless"];
+
+            case "resultTextBox":
+                return Localizer.Instance["centerPanel.textBoxes.result"];
+
+            default:
+                return "";
+        }
+    }
+
+    private async Task Save(string text, bool append = false) {
+        // РЕАЛИЗОВАТЬ ДОБАВЛЕНИЕ В ФАЙЛ [ СЕЙЧАС ТОЛЬКО ПЕРЕЗАПИСЬ ]
+        TopLevel? topLevel = GetTopLevel(this);
+
+        if (topLevel?.StorageProvider is null) {
+            await ShowError(Localizer.Instance["save.errors.storage"]);
+            return;
+        }
+
+        var saveOptions = new FilePickerSaveOptions {
+            Title = Localizer.Instance["save.title"],
+            DefaultExtension = ".yaml",
+            FileTypeChoices = new[] {
+                new FilePickerFileType("YAML Configuration") {
+                    Patterns = new[] { "*.yaml" },
+                    MimeTypes = new[] { "application/x-yaml", "text/yaml" }
+                }
+            }
+        };
+
+        var file = await topLevel.StorageProvider.SaveFilePickerAsync(saveOptions);
+
+        if (file is not null) {
+            try {
+                await using var stream = await file.OpenWriteAsync();
+                using var streamWriter = new StreamWriter(stream);
+                await streamWriter.WriteAsync(text);
+                saveTextBox.Text = file.Path.LocalPath;
+            }
+            catch (Exception ex) {
+                await ShowError($"{Localizer.Instance["save.errors.save"]}\n{ex.Message}");
+            }
+        }
+    }
+
+    private async Task SaveDownloadedFile(string path) {
+        TopLevel? topLevel = GetTopLevel(this);
+
+        if (topLevel?.StorageProvider is null) {
+            await ShowError(Localizer.Instance["save.errors.storage"]);
+            return;
+        }
+
+        var saveOptions = new FilePickerSaveOptions {
+            Title = Localizer.Instance["save.title"],
+            DefaultExtension = ".yaml",
+            FileTypeChoices = new[] {
+                new FilePickerFileType("YAML Configuration") {
+                    Patterns = new[] { "*.yaml" },
+                    MimeTypes = new[] { "application/x-yaml", "text/yaml" }
+                }
+            }
+        };
+
+        var file = await topLevel.StorageProvider.SaveFilePickerAsync(saveOptions);
+
+        if (file is not null) {
+            try {
+                await using (var sourceStream = File.OpenRead(path))
+                await using (var destinationStream = await file.OpenWriteAsync()) {
+                    await sourceStream.CopyToAsync(destinationStream);
+                }
+                File.Delete(path);
+            }
+            catch (Exception ex) {
+                await ShowError($"{Localizer.Instance["save.errors.save"]}\n{ex.Message}\n\n{Localizer.Instance["save.errors.toTempDirectory"]}: {path}");
+            }
+        }
+        else
+            if (File.Exists(path))
+                File.Delete(path);
+    }
+
+    private void EntwareOnBusyStateChanged(bool isBusy) {
+        if (buttonsToBlock != null)
+            Dispatcher.UIThread.Invoke(() => {
+                if (isBusy)
+                    foreach (Button button in buttonsToBlock) {
+                        if (button.Tag == null)
+                            button.Tag = button.IsEnabled;
+                        button.IsEnabled = false;
+                    }
+                else
+                    foreach (Button button in buttonsToBlock) {
+                        if (button.Tag is bool state) {
+                            button.IsEnabled = state;
+                            button.Tag = null;
+                        }
+                        else
+                            button.IsEnabled = true;
+                    }
+            });
+    }
+
+    private void EntwareOnProgressChanged(double progress, bool isPercent) {
+        Dispatcher.UIThread.Invoke(() => {
+            if (isPercent) {
+                progressBar.Value = progress;
+                progressBarText.Text = progress.ToString("F2", System.Globalization.CultureInfo.InvariantCulture);
+            }
+            else
+                progressBarText.Text = $"{progress.ToString("F2", System.Globalization.CultureInfo.InvariantCulture)} MB";
+        });
     }
 
     private void OnGlobalPointerPressed(object? sender, PointerPressedEventArgs e) {
@@ -522,9 +742,10 @@ public partial class MainWindow : Window {
     }
 
     private void MainWindowClosing(object? sender, System.ComponentModel.CancelEventArgs e) {
-        if (router != null) {
-            router.Dispose();
+        if (entware != null) {
+            entware.Dispose();
             System.Diagnostics.Debug.WriteLine("ROUTER DISPOSED");
         }
+        base.OnClosed(e);
     }
 }
