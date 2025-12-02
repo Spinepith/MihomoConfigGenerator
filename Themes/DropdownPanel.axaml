@@ -29,7 +29,7 @@
                       
                               <TextBlock Grid.Column="0"
                                          x:Name="leftArrow"
-                                         Text="↓"
+                                         Text="&#8595;"
                                          Opacity=".2"
                                          HorizontalAlignment="Left"
                                          VerticalAlignment="Center"
@@ -43,7 +43,7 @@
                               
                               <TextBlock Grid.Column="2"
                                          x:Name="rightArrow"
-                                         Text="↓"
+                                         Text="&#8595;"
                                          Opacity=".2"
                                          HorizontalAlignment="Right"
                                          VerticalAlignment="Center"

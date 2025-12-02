@@ -23,7 +23,7 @@
                       <Grid RowDefinitions="Auto, *" Background="#8C92FF">
 					      <Button Grid.Row="0"
                                   x:Name="closeInfoButton"
-                                  Content="🞩"
+                                  Content="&#x2717;"
                                   FontWeight="Bold"
                                   HorizontalAlignment="Right"
                                   VerticalAlignment="Center"

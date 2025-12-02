@@ -43,7 +43,7 @@
 
                     <Button Grid.Column="2"
                             x:Name="closeErrorButton"
-                            Content="🞩"
+                            Content="&#x2717;"
                             FontWeight="Bold"
                             Padding="0"
                             HorizontalAlignment="Right"

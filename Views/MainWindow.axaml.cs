@@ -137,6 +137,8 @@ public partial class MainWindow : Window {
 
                 browseTextBox.Text = selectedFile.Path.LocalPath;
                 vlessTextBox.Text = content;
+                vlessTextBox.HorizontalContentAlignment = HorizontalAlignment.Left;
+                vlessTextBox.VerticalContentAlignment = VerticalAlignment.Top;
             }
             catch (Exception ex) {
                 await ShowError($"{Localizer.Instance["browse.errors.read"]}\n{ex.Message}");
@@ -679,7 +681,11 @@ public partial class MainWindow : Window {
         }
         else
             if (File.Exists(path))
-                File.Delete(path);
+            File.Delete(path);
+    }
+
+    private async Task ShowError(string message) {
+        await ErrorDialog.Show(this, message);
     }
 
     private void EntwareOnBusyStateChanged(bool isBusy) {
@@ -708,9 +714,14 @@ public partial class MainWindow : Window {
             if (isPercent) {
                 progressBar.Value = progress;
                 progressBarText.Text = progress.ToString("F2", System.Globalization.CultureInfo.InvariantCulture);
+                progressBarLeftSymbol.Text = "%";
+                progressBarRightSymbol.Text = "%";
             }
-            else
-                progressBarText.Text = $"{progress.ToString("F2", System.Globalization.CultureInfo.InvariantCulture)} MB";
+            else {
+                progressBarText.Text = $"{progress.ToString("F2", System.Globalization.CultureInfo.InvariantCulture)}";
+                progressBarLeftSymbol.Text = "MB";
+                progressBarRightSymbol.Text = "MB";
+            }
         });
     }
 
@@ -725,10 +736,6 @@ public partial class MainWindow : Window {
 
         var topLevel = GetTopLevel(this);
         topLevel?.FocusManager?.ClearFocus();
-    }
-
-    private async Task ShowError(string message) {
-        await ErrorDialog.Show(this, message);
     }
 
     private void MainWindowSizeChanged(object? sender, SizeChangedEventArgs e) {

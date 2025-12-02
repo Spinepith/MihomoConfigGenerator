@@ -57,12 +57,12 @@ public class DropdownPanel : TemplatedControl {
     private void DropdownPanelButton(object? sender, RoutedEventArgs e) {
         if (leftArrow != null && rightArrow != null) {
             if (IsOpen) {
-                leftArrow.Text = "↑";
-                rightArrow.Text = "↑";
+                leftArrow.Text = "\u2193";
+                rightArrow.Text = "\u2193";
             }
             else {
-                leftArrow.Text = "↓";
-                rightArrow.Text = "↓";
+                leftArrow.Text = "\u2191";
+                rightArrow.Text = "\u2191";
             }
         }
 

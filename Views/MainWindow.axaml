@@ -363,6 +363,7 @@
                              Text="{localization:Localize centerPanel.textBoxes.browse}"
                              TextWrapping="Wrap"
                              HorizontalContentAlignment="Left"
+                             VerticalContentAlignment="Stretch"
                              Foreground="White"/>
                 
                     <Button Grid.Column="3"
@@ -487,6 +488,7 @@
                              Text="{localization:Localize centerPanel.textBoxes.save}"
                              TextWrapping="Wrap"
                              HorizontalContentAlignment="Left"
+                             VerticalContentAlignment="Stretch"
                              Foreground="White"/>
             
                     <Button Grid.Column="3"
@@ -645,7 +647,6 @@
                                       VerticalContentAlignment="Center"
                                       HorizontalAlignment="Stretch"
                                       VerticalAlignment="Stretch"
-                                      Background="#6A70E0"
                                       Foreground="White"
                                       BorderThickness="0"
                                       Click="ExpandTextBox"/>
@@ -722,10 +723,24 @@
                                      CornerRadius="3"
                                      IsHitTestVisible="False"/>
 
+                        <TextBlock x:Name="progressBarLeftSymbol"
+                                   HorizontalAlignment="Left"
+                                   VerticalAlignment="Center"
+                                   Foreground="White"
+                                   Opacity=".2"
+                                   Margin="4, 0"/>
+
                         <TextBlock x:Name="progressBarText"
                                    HorizontalAlignment="Center"
                                    VerticalAlignment="Center"
                                    Foreground="White"/>
+
+                        <TextBlock x:Name="progressBarRightSymbol"
+                                   HorizontalAlignment="Right"
+                                   VerticalAlignment="Center"
+                                   Foreground="White"
+                                   Opacity=".2"
+                                   Margin="4, 0"/>
                     
                     </Grid>
 
