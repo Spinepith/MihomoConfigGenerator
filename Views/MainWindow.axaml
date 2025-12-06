@@ -394,7 +394,8 @@
                                      Padding="10"
                                      Text="{localization:Localize centerPanel.textBoxes.vless}"
                                      GotFocus="GotFocusTextBox"
-                                     LostFocus="LostFocusTextBox"/>
+                                     LostFocus="LostFocusTextBox"
+                                     KeyDown="TextBlockTAB"/>
                     
                         </ScrollViewer>
                     
@@ -413,7 +414,8 @@
                                      Padding="10"
                                      Text="{localization:Localize centerPanel.textBoxes.result}"
                                      GotFocus="GotFocusTextBox"
-                                     LostFocus="LostFocusTextBox"/>
+                                     LostFocus="LostFocusTextBox"
+                                     KeyDown="TextBlockTAB"/>
                         
                         </ScrollViewer>
 
@@ -620,7 +622,8 @@
                                          Padding="10"
                                          GotFocus="GotFocusTextBox"
                                          LostFocus="LostFocusTextBox"
-                                         TextChanged="OnMyConfigChanged"/>
+                                         TextChanged="OnMyConfigChanged"
+                                         KeyDown="TextBlockTAB"/>
 
                             </ScrollViewer>
 
@@ -728,7 +731,7 @@
                                    VerticalAlignment="Center"
                                    Foreground="White"
                                    Opacity=".2"
-                                   Margin="4, 0"/>
+                                   Margin="8, 0"/>
 
                         <TextBlock x:Name="progressBarText"
                                    HorizontalAlignment="Center"
@@ -740,7 +743,7 @@
                                    VerticalAlignment="Center"
                                    Foreground="White"
                                    Opacity=".2"
-                                   Margin="4, 0"/>
+                                   Margin="8, 0"/>
                     
                     </Grid>
 

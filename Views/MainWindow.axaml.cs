@@ -15,6 +15,8 @@ using NetCoreAudio;
 using XKeenMihomoGenerator.Data.Localization;
 using XKeenMihomoGenerator.Services;
 using static System.Runtime.InteropServices.JavaScript.JSType;
+using HarfBuzzSharp;
+using static System.Net.Mime.MediaTypeNames;
 
 namespace XKeenMihomoGenerator.Views;
 
@@ -453,6 +455,159 @@ public partial class MainWindow : Window {
             saveMyConfigButton.IsEnabled = true;
     }
 
+    private void TextBlockTAB(object? sender, KeyEventArgs e) {
+        TextBox? textBox = sender as TextBox;
+        if (textBox?.Text == null)
+            return;
+        string text = textBox.Text;
+        string tabSpaces = "    ";
+        int selectionStart = Math.Min(textBox.SelectionStart, textBox.SelectionEnd);
+        int selectionEnd = Math.Max(textBox.SelectionStart, textBox.SelectionEnd);
+        bool isTab = e.Key == Key.Tab && !e.KeyModifiers.HasFlag(KeyModifiers.Shift);
+        bool isShiftTab = e.Key == Key.Tab && e.KeyModifiers.HasFlag(KeyModifiers.Shift);
+        bool isDuplicate = e.Key == Key.D && e.KeyModifiers.HasFlag(KeyModifiers.Control);
+        if (!isTab && !isShiftTab && !isDuplicate)
+            return;
+        e.Handled = true;
+
+        if (isDuplicate) {
+            string duplicateText;
+            int insertPos;
+            int duplicateLength;
+
+            if (selectionStart != selectionEnd) {
+                int lineStart = selectionStart;
+                while (lineStart > 0 && text[lineStart - 1] != '\n')
+                    lineStart--;
+
+                int lastLineStart = selectionEnd;
+                while (lastLineStart > 0 && text[lastLineStart - 1] != '\n')
+                    lastLineStart--;
+
+                int lineEnd;
+
+                if (selectionEnd > lastLineStart) {
+                    lineEnd = lastLineStart;
+                    while (lineEnd < text.Length && text[lineEnd] != '\n')
+                        lineEnd++;
+
+                    if (lineEnd < text.Length && text[lineEnd] == '\n')
+                        lineEnd++;
+                }
+                else
+                    lineEnd = lastLineStart;
+
+                duplicateText = text.Substring(lineStart, lineEnd - lineStart);
+                insertPos = lineEnd;
+                duplicateLength = duplicateText.Length;
+            }
+            else {
+                int lineStart = selectionStart;
+                while (lineStart > 0 && text[lineStart - 1] != '\n')
+                    lineStart--;
+
+                int lineEnd = selectionStart;
+                while (lineEnd < text.Length && text[lineEnd] != '\n')
+                    lineEnd++;
+
+                if (lineEnd < text.Length && text[lineEnd] == '\n')
+                    lineEnd++;
+
+                duplicateText = text.Substring(lineStart, lineEnd - lineStart);
+                insertPos = lineEnd;
+                duplicateLength = duplicateText.Length;
+            }
+
+            textBox.Text = text.Insert(insertPos, duplicateText);
+            textBox.SelectionStart = insertPos;
+            textBox.SelectionEnd = insertPos + duplicateLength;
+
+            return;
+        }
+
+        if (selectionStart != selectionEnd) {
+            int lineStart = selectionStart;
+            while (lineStart > 0 && text[lineStart - 1] != '\n')
+                lineStart--;
+
+            int lastLineStart = selectionEnd;
+            while (lastLineStart > 0 && text[lastLineStart - 1] != '\n')
+                lastLineStart--;
+
+            int lineEnd;
+            if (selectionEnd > lastLineStart) {
+                lineEnd = lastLineStart;
+                while (lineEnd < text.Length && text[lineEnd] != '\n')
+                    lineEnd++;
+
+                if (lineEnd < text.Length && text[lineEnd] == '\n')
+                    lineEnd++;
+            }
+            else
+                lineEnd = lastLineStart;
+
+            string block = text.Substring(lineStart, lineEnd - lineStart);
+            string[] lines = block.Split('\n');
+            List<string> processedLines = new List<string>();
+
+            for (int i = 0; i < lines.Length; i++) {
+                if (i == lines.Length - 1 && string.IsNullOrEmpty(lines[i]) && i > 0)
+                    continue;
+
+                string line = lines[i];
+
+                if (isShiftTab) {
+                    if (line.StartsWith(tabSpaces))
+                        line = line.Substring(tabSpaces.Length);
+                    else {
+                        int remove = 0;
+                        while (remove < 4 && remove < line.Length && line[remove] == ' ')
+                            remove++;
+                        line = line.Substring(remove);
+                    }
+                }
+                else
+                    line = tabSpaces + line;
+
+                processedLines.Add(line);
+            }
+
+            string newBlock = string.Join("\n", processedLines);
+            if (lineEnd < text.Length && text[lineEnd - 1] == '\n' && !newBlock.EndsWith("\n"))
+                newBlock += "\n";
+
+            textBox.Text = text.Remove(lineStart, lineEnd - lineStart).Insert(lineStart, newBlock);
+            textBox.SelectionStart = lineStart;
+            textBox.SelectionEnd = lineStart + newBlock.Length;
+
+            return;
+        }
+
+        int caret = textBox.SelectionStart;
+        int lineCaretStart = caret;
+        while (lineCaretStart > 0 && text[lineCaretStart - 1] != '\n')
+            lineCaretStart--;
+
+        if (isTab) {
+            textBox.Text = text.Insert(caret, tabSpaces);
+            textBox.SelectionStart = caret + tabSpaces.Length;
+            textBox.SelectionEnd = textBox.SelectionStart;
+        }
+        else {
+            int linePos = caret - lineCaretStart;
+            int removeFromLineStart = 0;
+
+            while (removeFromLineStart < 4 && removeFromLineStart < linePos && text[lineCaretStart + removeFromLineStart] == ' ')
+                removeFromLineStart++;
+
+            if (removeFromLineStart > 0) {
+                textBox.Text = text.Remove(lineCaretStart, removeFromLineStart);
+                textBox.SelectionStart = caret - removeFromLineStart;
+                textBox.SelectionEnd = textBox.SelectionStart;
+            }
+        }
+    }
+
     private async void SaveMyConfig(object? sender, RoutedEventArgs e) {
         if (entware != null && !string.IsNullOrWhiteSpace(myConfigBlock.Text)) {
             string result = await entware.SaveUserConfigAsync(myConfigBlock.Text);
@@ -481,10 +636,10 @@ public partial class MainWindow : Window {
             else
                 result = await entware.BackupConfigAsync();
 
-            if (!result.StartsWith(nameof(EntwareClient)))
-                await SaveDownloadedFile(result);
-            else
+            if (result.StartsWith(nameof(EntwareClient)))
                 await ShowError(result);
+            else if (!string.IsNullOrEmpty(result))
+                await SaveDownloadedFile(result);
 
             progressBar.Value = 0;
             progressBarBlock.IsVisible = false;
@@ -681,7 +836,7 @@ public partial class MainWindow : Window {
         }
         else
             if (File.Exists(path))
-            File.Delete(path);
+                File.Delete(path);
     }
 
     private async Task ShowError(string message) {

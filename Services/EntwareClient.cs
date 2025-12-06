@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Renci.SshNet;
+using Renci.SshNet.Common;
 using XKeenMihomoGenerator.Data.Localization;
 
 namespace XKeenMihomoGenerator.Services;
@@ -99,9 +100,10 @@ public class EntwareClient : IDisposable {
 
         return await WriteOperationAsync(async () => {
             await Task.Run(() => {
-                string base64content = Convert.ToBase64String(Encoding.UTF8.GetBytes(text));
+                string delimiter = "END_OF_CONFIG";
+                string heredocCommand = $"cat <<'{delimiter}' > {configPath}\n{text}\n{delimiter}";
 
-                using (SshCommand? cmd = sshClient!.CreateCommand($"echo  -n '{base64content}' | base64 -d > {configPath}")) {
+                using (SshCommand? cmd = sshClient!.CreateCommand(heredocCommand)) {
                     var result = cmd.Execute();
 
                     if (cmd.ExitStatus != 0)
@@ -138,11 +140,14 @@ public class EntwareClient : IDisposable {
                 if (result == "CANCELED_BY_TOKEN") {
                     if (File.Exists(tempFile))
                         File.Delete(tempFile);
+                    return "";
+                }
+                else if (result.StartsWith(nameof(EntwareClient)) && File.Exists(tempFile)) {
+                    if (File.Exists(tempFile))
+                        File.Delete(tempFile);
                     return $"{nameof(EntwareClient)} {Localizer.Instance["sshPanel.errors.commandFailed"]}";
                 }
-                else if (result.StartsWith(nameof(EntwareClient)) && File.Exists(tempFile))
-                    File.Delete(tempFile);
-
+                
                 Logger.Log($"{nameof(ExecuteCommandAsync)}\n{result}");
                 return result;
             }
@@ -170,7 +175,7 @@ public class EntwareClient : IDisposable {
             string tempFile = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Data", $"{Path.GetRandomFileName()}.yaml");
             try {
                 long? fileSize = null;
-                
+
                 using (SshCommand? sizeCmd = sshClient!.CreateCommand($"wc -c < {configPath}")) {
                     var sizeResult = sizeCmd.Execute();
                     if (sizeCmd.ExitStatus == 0 && long.TryParse(sizeResult.Trim(), out long size))
@@ -180,15 +185,18 @@ public class EntwareClient : IDisposable {
                 string command = $"cat {configPath}";
                 string result = await DownloadOperationAsync(tempFile, command, token, fileSize);
 
-                if (result == "CANCELD_BY_TOKEN") {
+                if (result == "CANCELED_BY_TOKEN") {
+                    if (File.Exists(tempFile))
+                        File.Delete(tempFile);
+                    return "";
+                }
+                else if (result.StartsWith(nameof(EntwareClient))) {
                     if (File.Exists(tempFile))
                         File.Delete(tempFile);
                     return $"{nameof(EntwareClient)} {Localizer.Instance["sshPanel.errors.commandFailed"]}";
                 }
-                else if (result.StartsWith(nameof(EntwareClient)) && File.Exists(tempFile))
-                    File.Delete(tempFile);
 
-                Logger.Log($"{nameof(ExecuteCommandAsync)}\n{result}");
+                Logger.Log($"{nameof(BackupConfigAsync)}\n{result}");
                 return result;
             }
             catch (Exception ex) {
@@ -226,7 +234,7 @@ public class EntwareClient : IDisposable {
 
                     if (redColorCodes.Any(code => result.Contains(code)))
                         return "OFF";
-                    
+
                     return result;
                 }
             });
@@ -282,7 +290,7 @@ public class EntwareClient : IDisposable {
                             catch { }
                             return "";
                         }
-                        
+
                         if (redColorCodes.Any(code => line.Contains(code))) {
                             try {
                                 await writer.WriteAsync("\x03");
@@ -414,7 +422,7 @@ public class EntwareClient : IDisposable {
     }
 
     private async Task<string> DownloadOperationAsync(string path, string command, CancellationToken token, long? fileSize) {
-        return await Task.Run(() => {
+        return await Task.Run(async () => {
             try {
                 try {
                     string? _path = Path.GetDirectoryName(path);
@@ -431,56 +439,85 @@ public class EntwareClient : IDisposable {
                     path = Path.Combine(appData, "XKeenMihomoGenerator", "Data", fileName);
                 }
 
-                using (var outputStream = new FileStream(path, FileMode.Create, FileAccess.Write))
-                using (SshCommand cmd = sshClient!.CreateCommand(command)) {
-                    var result = cmd.BeginExecute();
+                using (SshCommand? cmd = sshClient!.CreateCommand(command))
+                using (var outputStream = new FileStream(path, FileMode.Create, FileAccess.Write)) {
+                    using (token.Register(() => {
+                        try {
+                            using (var killCmd = sshClient.CreateCommand("pkill -9 tar")) {
+                                killCmd.Execute();
+                            }
 
-                    using (Stream? reader = cmd.OutputStream) {
-                        var buffer = new byte[8192];
-                        int bytesReaded;
-                        long totalBytesRead = 0;
-                        double lastReportedValue = 0;
+                            cmd?.CancelAsync();
+                        }
+                        catch (Exception ex) {
+                            Logger.Log($"Error during cancel operation: {ex.Message}");
+                        }
+                    })) {
+                        var result = cmd.BeginExecute();
 
-                        while ((bytesReaded = reader.Read(buffer, 0, buffer.Length)) > 0) {
-                            if (token.IsCancellationRequested)
-                                return "CANCELED_BY_TOKEN";
+                        using (Stream? reader = cmd.OutputStream) {
+                            var buffer = new byte[8192];
+                            int bytesReaded;
+                            long totalBytesRead = 0;
+                            double lastReportedValue = 0;
 
-                            outputStream.Write(buffer, 0, bytesReaded);
-                            totalBytesRead += bytesReaded;
+                            while (true) {
+                                if (token.IsCancellationRequested) {
+                                    Logger.Log($"{nameof(DownloadOperationAsync)} canceled by user");
+                                    return "CANCELED_BY_TOKEN";
+                                }
 
-                            if (OnProgressChanged != null) {
-                                double currentProgress;
-                                if (fileSize != null)
-                                    currentProgress = totalBytesRead / (double)fileSize * 100;
-                                else
-                                    currentProgress = totalBytesRead / 1024 / 1024;
+                                var readTask = reader.ReadAsync(buffer, 0, buffer.Length);
+                                var delayTask = Task.Delay(100);
 
-                                if (currentProgress - lastReportedValue >= 0.1 || (fileSize != null && currentProgress >= 100)) {
-                                    OnProgressChanged?.Invoke(currentProgress, fileSize != null);
-                                    lastReportedValue = currentProgress;
+                                var completedTask = await Task.WhenAny(readTask, delayTask);
+
+                                if (completedTask == delayTask)
+                                    continue;
+
+                                bytesReaded = await readTask;
+
+                                if (bytesReaded <= 0)
+                                    break;
+
+                                outputStream.Write(buffer, 0, bytesReaded);
+                                totalBytesRead += bytesReaded;
+
+                                if (OnProgressChanged != null) {
+                                    double currentProgress;
+                                    if (fileSize != null)
+                                        currentProgress = totalBytesRead / (double)fileSize * 100;
+                                    else
+                                        currentProgress = totalBytesRead / 1024.0 / 1024.0;
+
+                                    if (currentProgress - lastReportedValue >= 0.1 || (fileSize != null && currentProgress >= 100)) {
+                                        OnProgressChanged?.Invoke(currentProgress, fileSize != null);
+                                        lastReportedValue = currentProgress;
+                                    }
                                 }
                             }
+
+                            outputStream.Flush();
+                            OnProgressChanged?.Invoke(fileSize != null ? 100 : (double)totalBytesRead / 1024 / 1024, fileSize != null);
                         }
 
-                        outputStream.Flush();
-                        OnProgressChanged?.Invoke(fileSize != null ? 100 : (double)totalBytesRead / 1024 / 1024, fileSize != null);
+                        cmd.EndExecute(result);
+
+                        if (cmd.ExitStatus != 0)
+                            return $"{nameof(EntwareClient)} {Localizer.Instance["sshPanel.errors.commandFailed"]}\n{cmd.Error}";
+    
+                        Logger.Log($"{nameof(DownloadOperationAsync)} completed successfully");
+                        return path;
                     }
-
-                    cmd.EndExecute(result);
-
-                    if (cmd.ExitStatus != 0)
-                        return $"{nameof(EntwareClient)} {Localizer.Instance["sshPanel.errors.commandFailed"]}\n{cmd.Error}";
-
-                    Logger.Log($"{nameof(ExecuteCommandAsync)}\n{result}");
-                    return path;
                 }
             }
             catch (Exception ex) {
+                Logger.Log($"{nameof(DownloadOperationAsync)} exception: {ex.Message}");
                 return $"{nameof(EntwareClient)} {Localizer.Instance["sshPanel.errors.commandFailed"]}\n{ex.Message}";
             }
-        },
-        token);
+        }, token);
     }
+
 
     public void Dispose() {
         if (disposed)
