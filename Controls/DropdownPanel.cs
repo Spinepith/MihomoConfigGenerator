@@ -7,7 +7,7 @@ using Avalonia.Metadata;
 
 namespace XKeenMihomoGenerator.Controls;
 
-public class DropdownPanel : TemplatedControl {
+internal class DropdownPanel : TemplatedControl {
     private Grid? mainGrid;
     private TextBlock? leftArrow;
     private TextBlock? rightArrow;

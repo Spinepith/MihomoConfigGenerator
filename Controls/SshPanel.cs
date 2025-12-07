@@ -6,7 +6,7 @@ using System;
 
 namespace XKeenMihomoGenerator.Controls;
 
-public class SshPanel : TemplatedControl {
+internal class SshPanel : TemplatedControl {
     public static readonly StyledProperty<string> ConnectionStatusProperty = AvaloniaProperty.Register<SshPanel, string>(nameof(ConnectionStatus));
     public string ConnectionStatus {
         get => GetValue(ConnectionStatusProperty);

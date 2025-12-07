@@ -6,7 +6,7 @@ using Avalonia.Metadata;
 
 namespace XKeenMihomoGenerator.Controls;
 
-public class LabeledPanel : TemplatedControl {
+internal class LabeledPanel : TemplatedControl {
     public static readonly StyledProperty<string> LabelProperty = AvaloniaProperty.Register<LabeledPanel, string>(nameof(Label), "Label");
     public string Label {
         get => GetValue(LabelProperty);

@@ -5,7 +5,7 @@ using System.Text.Json;
 
 namespace XKeenMihomoGenerator.Data.Localization;
 
-public class Localizer : INotifyPropertyChanged {
+internal class Localizer : INotifyPropertyChanged {
     public static Localizer Instance { get; } = new Localizer();
     public event PropertyChangedEventHandler? PropertyChanged;
     private Dictionary<string, object> translations = new Dictionary<string, object>();

@@ -5,12 +5,11 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Renci.SshNet;
-using Renci.SshNet.Common;
 using XKeenMihomoGenerator.Data.Localization;
 
 namespace XKeenMihomoGenerator.Services;
 
-public class EntwareClient : IDisposable {
+internal class EntwareClient : IDisposable {
     private readonly string username;
     private readonly string host;
     private readonly string port;
@@ -517,7 +516,6 @@ public class EntwareClient : IDisposable {
             }
         }, token);
     }
-
 
     public void Dispose() {
         if (disposed)

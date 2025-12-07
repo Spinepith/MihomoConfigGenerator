@@ -2,11 +2,10 @@
 using System.IO;
 using System.Linq;
 using System.Collections.Generic;
-using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace XKeenMihomoGenerator.Services;
 
-public static class Logger {
+internal static class Logger {
     private static readonly object lockObject = new object();
     private const long MaxFileSize = 1L * 1024 * 1024 * 1024;
 

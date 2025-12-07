@@ -6,6 +6,6 @@ using System.Threading.Tasks;
 
 namespace XKeenMihomoGenerator.Services;
 
-public class ConfigGenerator {
+internal class ConfigGenerator {
 
 }

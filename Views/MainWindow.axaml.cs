@@ -12,15 +12,16 @@ using Avalonia.Platform.Storage;
 using Avalonia.Threading;
 using Avalonia.VisualTree;
 using NetCoreAudio;
+using System.Text.Json;
 using XKeenMihomoGenerator.Data.Localization;
 using XKeenMihomoGenerator.Services;
-using static System.Runtime.InteropServices.JavaScript.JSType;
-using HarfBuzzSharp;
-using static System.Net.Mime.MediaTypeNames;
+using XKeenMihomoGenerator.Services.Settings;
+using XKeenMihomoGenerator.Controls;
 
 namespace XKeenMihomoGenerator.Views;
 
-public partial class MainWindow : Window {
+internal partial class MainWindow : Window {
+    private SettingsManager settings;
     private EntwareClient? entware;
     private Player? player;
 
@@ -28,9 +29,23 @@ public partial class MainWindow : Window {
 
     public MainWindow() {
         InitializeComponent();
+
+        settings = new SettingsManager();
+
         ConfigureInterface();
+
         SizeChanged += MainWindowSizeChanged;
         Closing += MainWindowClosing;
+
+        System.Diagnostics.Debug.WriteLine(settings.Settings.Autoconnect);
+        System.Diagnostics.Debug.WriteLine(settings.Settings.Autoinsert);
+
+        if (settings.Settings.Autoconnect) {
+            SetConnectionDataFromJson();
+            ConnectToEntware(null, null!);
+            sshData.ShowConnectionStatus = false;
+            sshData.ConnectionStatus = "";
+        }
     }
 
     /* LEFT PANEL */
@@ -250,7 +265,7 @@ public partial class MainWindow : Window {
             newServersPanel.IsVisible = false;
 
         myServersPanel.IsVisible = false;
-        routerButtonsPanel.IsVisible = false;
+        entwareButtonsPanel.IsVisible = false;
         myConfigExpandButton.IsChecked = false;
         ExpandTextBox(myConfigExpandButton, e);
 
@@ -264,13 +279,15 @@ public partial class MainWindow : Window {
             myServersPanel.IsVisible = true;
 
         newServersPanel.IsVisible = false;
-        routerButtonsPanel.IsVisible = true;
+        entwareButtonsPanel.IsVisible = true;
 
         rightPanelGrid.RowDefinitions[2].Height = GridLength.Auto;
     }
 
     private void OpenSshPanel(object? sender, RoutedEventArgs e) {
         sshPanel.IsVisible = true;
+        if (settings.Settings.Autoinsert)
+            SetConnectionDataFromJson();
     }
 
     private void CloseSshPanel(object? sender, RoutedEventArgs e) {
@@ -279,7 +296,7 @@ public partial class MainWindow : Window {
         sshData.ConnectionStatus = "";
     }
 
-    private async void ConnectToRouter(object? sender, RoutedEventArgs e) {
+    private async void ConnectToEntware(object? sender, RoutedEventArgs e) {
         string username = sshData.Username;
         string ip = sshData.Ip;
         string port = sshData.Port;
@@ -308,6 +325,24 @@ public partial class MainWindow : Window {
                 player = new Player();
             await player.Play(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Assets", "Sounds", "connected.wav"));
 
+            string folderPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Data");
+            string filePath = Path.Combine(folderPath, "userdata.json");
+            try {
+                Directory.CreateDirectory(folderPath);
+                File.WriteAllText(
+                    filePath,
+                    JsonSerializer.Serialize(new { 
+                        sshData.Username,
+                        sshData.Ip,
+                        sshData.Port,
+                        sshData.Password
+                    },
+                    new JsonSerializerOptions { WriteIndented = true }));
+            }
+            catch (Exception ex) {
+                await ShowError(ex.Message);
+            }            
+
             sshData.ConnectionStatus = Localizer.Instance["sshPanel.success"];
             sshData.ShowConnectionButton = false;
 
@@ -318,7 +353,7 @@ public partial class MainWindow : Window {
             backupButtons.IsVisible = true;
             disconnectButton.IsVisible = true;
 
-            routerButtonsPanel.RowSpacing = 4;
+            entwareButtonsPanel.RowSpacing = 4;
 
             buttonsToBlock = new List<Button> {
                 showMyConfigButton,
@@ -335,7 +370,7 @@ public partial class MainWindow : Window {
             sshData.ConnectionStatus = connectionStatus;
     }
 
-    private async void DisconnectRouter(object? sender, RoutedEventArgs e) {
+    private async void DisconnectEntware(object? sender, RoutedEventArgs e) {
         entware?.Disconnect();
 
         if (player is null)
@@ -364,7 +399,7 @@ public partial class MainWindow : Window {
         myConfigExpandButton.IsChecked = false;
         ExpandTextBox(myConfigExpandButton, e);
 
-        routerButtonsPanel.RowSpacing = 0;
+        entwareButtonsPanel.RowSpacing = 0;
     }
 
     private void CancelBackup(object? sender, RoutedEventArgs e) {
@@ -384,12 +419,10 @@ public partial class MainWindow : Window {
             string result;
 
             if (buttonText == on) {
-                System.Diagnostics.Debug.WriteLine(1);
                 result = await entware.XKeenStartAsync();
                 restartXKeenButton.Content = off;
             }
             else {
-                System.Diagnostics.Debug.WriteLine(2);
                 result = await entware.XKeenStopAsync();
                 restartXKeenButton.Content = on;
             }
@@ -453,6 +486,250 @@ public partial class MainWindow : Window {
     private void OnMyConfigChanged(object? sender, TextChangedEventArgs e) {
         if (myConfigBlock.Tag as string == "loaded")
             saveMyConfigButton.IsEnabled = true;
+    }
+
+    private async void SaveMyConfig(object? sender, RoutedEventArgs e) {
+        if (entware != null && !string.IsNullOrWhiteSpace(myConfigBlock.Text)) {
+            string result = await entware.SaveUserConfigAsync(myConfigBlock.Text);
+
+            if (result.StartsWith(nameof(EntwareClient))) {
+                await ShowError(result);
+                return;
+            }
+
+            saveMyConfigButton.IsEnabled = false;
+        }
+    }
+
+    private async void Backup(object? sender, RoutedEventArgs e) {
+        if (entware != null) {
+            backupButtons.IsVisible = false;
+            disconnectButton.IsVisible = false;
+            progressBarBlock.IsVisible = true;
+            cancelBackupButton.IsVisible = true;
+
+            progressBarBlock.Height = backupButtons.Bounds.Height;
+
+            string result;
+            if (sender is Button button && button.Name == "backupEntwareButton")
+                result = await entware.BackupEntwareAsync();
+            else
+                result = await entware.BackupConfigAsync();
+
+            if (result.StartsWith(nameof(EntwareClient)))
+                await ShowError(result);
+            else if (!string.IsNullOrEmpty(result))
+                await SaveDownloadedFile(result);
+
+            progressBar.Value = 0;
+            progressBarBlock.IsVisible = false;
+            cancelBackupButton.IsVisible = false;
+            backupButtons.IsVisible = true;
+            disconnectButton.IsVisible = true;
+        }
+    }
+
+    private async void ReloadMyConfig(object? sender, RoutedEventArgs e) {
+        if (entware != null) {
+            myConfigBlock.Text = "";
+            buttonsToBlock?.Add(showMyConfigButton);
+
+            string myConfig = await entware.GetUserConfigAsync();
+
+            if (myConfig.StartsWith(nameof(EntwareClient))) {
+                await ShowError(myConfig);
+                return;
+            }
+
+            myConfigBlock.Tag = "loaded";
+            myConfigBlock.Text = myConfig;
+
+            await Task.Delay(10);
+            saveMyConfigButton.IsEnabled = false;
+
+            buttonsToBlock?.Remove(showMyConfigButton);
+        }
+    }
+
+    private void ReloadMyServers(object? sender, RoutedEventArgs e) {
+        
+    }
+
+    /* FUNCTIONS THAT PREPARE THE INTERFACE */
+    private void ConfigureInterface() {
+        // LOCALIZATION
+        Localizer.Instance.SetLanguage(GetSystemLanguage());
+
+        // REMOVE FOCUS FROM TEXTBOX WHEN CLICKING IN ANY AREA
+        AddHandler(PointerPressedEvent, OnGlobalPointerPressed, RoutingStrategies.Tunnel, true);
+
+        //// LEFT MENU \\\\
+        // HIDING THE LEFT MENU
+        Thickness currentMargin = mainGrid.Margin;
+        leftPanelGrid.IsVisible = false;
+        leftPanelSplitter.IsVisible = false;
+        mainGrid.ColumnDefinitions[0].Width = new GridLength(0);
+        mainGrid.ColumnDefinitions[1].Width = new GridLength(0);
+        mainGrid.Margin = new Thickness(-30, currentMargin.Top, currentMargin.Right, currentMargin.Bottom);
+
+        // OPEN PROXY SETTINGS DROPDOWN PANEL
+        proxySettingsDropdown.IsOpen = true;
+
+        //// CENTER MENU \\\\
+        // BLOCK GRID SPLITTERS
+        leftPanelSplitter.IsEnabled = false;
+        rightPanelSplitter.IsEnabled = false;
+
+        // CENTERING TEXT BOX && CONTENT INSIDE IT
+        vlessTextBox.HorizontalContentAlignment = HorizontalAlignment.Center;
+        vlessTextBox.VerticalContentAlignment = VerticalAlignment.Center;
+        resultTextBox.HorizontalContentAlignment = HorizontalAlignment.Center;
+        resultTextBox.VerticalContentAlignment = VerticalAlignment.Center;
+
+        // BLOCK BROWSE & SAVE TEXTBOXES
+        browseTextBox.IsEnabled = false;
+        saveTextBox.IsEnabled = false;
+
+        // BLOCK SAVE BUTTON
+        saveButton.IsEnabled = false;
+
+        //// RIGHT MENU \\\\
+        // SHOW RIGHT MENU
+        rightPanelButton.IsChecked = true;
+        myServersButton.IsChecked = true;
+
+        // HIDE NEW SERVERS & MY SERVERS PANELS
+        newServersPanel.IsVisible = false;
+        myServersPanel.IsVisible = false;
+        myConfigScrollBar.IsVisible = false;
+
+        // BLOCK ENTWARE BUTTONS
+        expandConfigUpdateButtons.IsVisible = false;
+        saveMyConfigButton.IsVisible = false;
+        reloadMyConfigButton.IsVisible = false;
+        progressBarBlock.IsVisible = false;
+        backupButtons.IsVisible = false;
+        cancelBackupButton.IsVisible = false;
+        disconnectButton.IsVisible = false;
+        restartXKeenButton.IsVisible = false;
+
+        saveMyConfigButton.IsEnabled = false;
+    }
+
+    private string GetSystemLanguage() {
+        string language = System.Globalization.CultureInfo.CurrentCulture.TwoLetterISOLanguageName;
+
+        switch (language) {
+            case "ru":
+                ruToggleButton.IsChecked = true;
+                return "Russian";
+
+            case "en":
+                enToggleButton.IsChecked = true;
+                return "English";
+
+            default:
+                return "English";
+        }
+    }
+
+    private string GetPlaceholder(TextBox textBox) {
+        switch (textBox.Name) {
+            case "vlessTextBox":
+                return Localizer.Instance["centerPanel.textBoxes.vless"];
+
+            case "resultTextBox":
+                return Localizer.Instance["centerPanel.textBoxes.result"];
+
+            default:
+                return "";
+        }
+    }
+
+    private async Task Save(string text, bool append = false) {
+        // РЕАЛИЗОВАТЬ ДОБАВЛЕНИЕ В ФАЙЛ [ СЕЙЧАС ТОЛЬКО ПЕРЕЗАПИСЬ ]
+        TopLevel? topLevel = GetTopLevel(this);
+
+        if (topLevel?.StorageProvider is null) {
+            await ShowError(Localizer.Instance["save.errors.storage"]);
+            return;
+        }
+
+        var saveOptions = new FilePickerSaveOptions {
+            Title = Localizer.Instance["save.title"],
+            DefaultExtension = ".yaml",
+            FileTypeChoices = new[] {
+                new FilePickerFileType("YAML Configuration") {
+                    Patterns = new[] { "*.yaml" },
+                    MimeTypes = new[] { "application/x-yaml", "text/yaml" }
+                }
+            }
+        };
+
+        var file = await topLevel.StorageProvider.SaveFilePickerAsync(saveOptions);
+
+        if (file is not null) {
+            try {
+                await using var stream = await file.OpenWriteAsync();
+                using var streamWriter = new StreamWriter(stream);
+                await streamWriter.WriteAsync(text);
+                saveTextBox.Text = file.Path.LocalPath;
+            }
+            catch (Exception ex) {
+                await ShowError($"{Localizer.Instance["save.errors.save"]}\n{ex.Message}");
+            }
+        }
+    }
+
+    private async Task SaveDownloadedFile(string path) {
+        TopLevel? topLevel = GetTopLevel(this);
+
+        if (topLevel?.StorageProvider is null) {
+            await ShowError(Localizer.Instance["save.errors.storage"]);
+            return;
+        }
+
+        var saveOptions = new FilePickerSaveOptions {
+            Title = Localizer.Instance["save.title"],
+            DefaultExtension = ".yaml",
+            FileTypeChoices = new[] {
+                new FilePickerFileType("YAML Configuration") {
+                    Patterns = new[] { "*.yaml" },
+                    MimeTypes = new[] { "application/x-yaml", "text/yaml" }
+                }
+            }
+        };
+
+        var file = await topLevel.StorageProvider.SaveFilePickerAsync(saveOptions);
+
+        if (file is not null) {
+            try {
+                await using (var sourceStream = File.OpenRead(path))
+                await using (var destinationStream = await file.OpenWriteAsync()) {
+                    await sourceStream.CopyToAsync(destinationStream);
+                }
+                File.Delete(path);
+            }
+            catch (Exception ex) {
+                await ShowError($"{Localizer.Instance["save.errors.save"]}\n{ex.Message}\n\n{Localizer.Instance["save.errors.toTempDirectory"]}: {path}");
+            }
+        }
+        else
+            if (File.Exists(path))
+                File.Delete(path);
+    }
+
+    private void SetConnectionDataFromJson() {
+        string filePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Data", "userdata.json");
+        if (File.Exists(filePath)) {
+            string json = File.ReadAllText(filePath);
+            SshPanel loadedSshData = JsonSerializer.Deserialize<SshPanel>(json)!;
+
+            sshData.Username = loadedSshData.Username;
+            sshData.Ip = loadedSshData.Ip;
+            sshData.Port = loadedSshData.Port;
+            sshData.Password = loadedSshData.Password;
+        }
     }
 
     private void TextBlockTAB(object? sender, KeyEventArgs e) {
@@ -608,237 +885,6 @@ public partial class MainWindow : Window {
         }
     }
 
-    private async void SaveMyConfig(object? sender, RoutedEventArgs e) {
-        if (entware != null && !string.IsNullOrWhiteSpace(myConfigBlock.Text)) {
-            string result = await entware.SaveUserConfigAsync(myConfigBlock.Text);
-
-            if (result.StartsWith(nameof(EntwareClient))) {
-                await ShowError(result);
-                return;
-            }
-
-            saveMyConfigButton.IsEnabled = false;
-        }
-    }
-
-    private async void Backup(object? sender, RoutedEventArgs e) {
-        if (entware != null) {
-            backupButtons.IsVisible = false;
-            disconnectButton.IsVisible = false;
-            progressBarBlock.IsVisible = true;
-            cancelBackupButton.IsVisible = true;
-
-            progressBarBlock.Height = backupButtons.Bounds.Height;
-
-            string result;
-            if (sender is Button button && button.Name == "backupEntwareButton")
-                result = await entware.BackupEntwareAsync();
-            else
-                result = await entware.BackupConfigAsync();
-
-            if (result.StartsWith(nameof(EntwareClient)))
-                await ShowError(result);
-            else if (!string.IsNullOrEmpty(result))
-                await SaveDownloadedFile(result);
-
-            progressBar.Value = 0;
-            progressBarBlock.IsVisible = false;
-            cancelBackupButton.IsVisible = false;
-            backupButtons.IsVisible = true;
-            disconnectButton.IsVisible = true;
-        }
-    }
-
-    private async void ReloadMyConfig(object? sender, RoutedEventArgs e) {
-        if (entware != null) {
-            myConfigBlock.Text = "";
-            buttonsToBlock?.Add(showMyConfigButton);
-
-            string myConfig = await entware.GetUserConfigAsync();
-
-            if (myConfig.StartsWith(nameof(EntwareClient))) {
-                await ShowError(myConfig);
-                return;
-            }
-
-            myConfigBlock.Tag = "loaded";
-            myConfigBlock.Text = myConfig;
-
-            await Task.Delay(10);
-            saveMyConfigButton.IsEnabled = false;
-
-            buttonsToBlock?.Remove(showMyConfigButton);
-        }
-    }
-
-    private void ReloadMyServers(object? sender, RoutedEventArgs e) {
-
-    }
-
-    /* FUNCTIONS THAT PREPARE THE INTERFACE */
-    private void ConfigureInterface() {
-        // LOCALIZATION
-        Localizer.Instance.SetLanguage(GetSystemLanguage());
-
-        // REMOVE FOCUS FROM TEXTBOX WHEN CLICKING IN ANY AREA
-        AddHandler(PointerPressedEvent, OnGlobalPointerPressed, RoutingStrategies.Tunnel, true);
-
-        //// LEFT MENU \\\\
-        // HIDING THE LEFT MENU
-        Thickness currentMargin = mainGrid.Margin;
-        leftPanelGrid.IsVisible = false;
-        leftPanelSplitter.IsVisible = false;
-        mainGrid.ColumnDefinitions[0].Width = new GridLength(0);
-        mainGrid.ColumnDefinitions[1].Width = new GridLength(0);
-        mainGrid.Margin = new Thickness(-30, currentMargin.Top, currentMargin.Right, currentMargin.Bottom);
-
-        // OPEN PROXY SETTINGS DROPDOWN PANEL
-        proxySettingsDropdown.IsOpen = true;
-
-        //// CENTER MENU \\\\
-        // BLOCK GRID SPLITTERS
-        leftPanelSplitter.IsEnabled = false;
-        rightPanelSplitter.IsEnabled = false;
-
-        // CENTERING TEXT BOX && CONTENT INSIDE IT
-        vlessTextBox.HorizontalContentAlignment = HorizontalAlignment.Center;
-        vlessTextBox.VerticalContentAlignment = VerticalAlignment.Center;
-        resultTextBox.HorizontalContentAlignment = HorizontalAlignment.Center;
-        resultTextBox.VerticalContentAlignment = VerticalAlignment.Center;
-
-        // BLOCK BROWSE & SAVE TEXTBOXES
-        browseTextBox.IsEnabled = false;
-        saveTextBox.IsEnabled = false;
-
-        // BLOCK SAVE BUTTON
-        saveButton.IsEnabled = false;
-
-        //// RIGHT MENU \\\\
-        // SHOW RIGHT MENU
-        rightPanelButton.IsChecked = true;
-        myServersButton.IsChecked = true;
-
-        // HIDE NEW SERVERS & MY SERVERS PANELS
-        newServersPanel.IsVisible = false;
-        myServersPanel.IsVisible = false;
-        myConfigScrollBar.IsVisible = false;
-
-        // BLOCK ROUTER BUTTONS
-        expandConfigUpdateButtons.IsVisible = false;
-        saveMyConfigButton.IsVisible = false;
-        reloadMyConfigButton.IsVisible = false;
-        progressBarBlock.IsVisible = false;
-        backupButtons.IsVisible = false;
-        cancelBackupButton.IsVisible = false;
-        disconnectButton.IsVisible = false;
-        restartXKeenButton.IsVisible = false;
-
-        saveMyConfigButton.IsEnabled = false;
-    }
-
-    private string GetSystemLanguage() {
-        string language = System.Globalization.CultureInfo.CurrentCulture.TwoLetterISOLanguageName;
-
-        switch (language) {
-            case "ru":
-                ruToggleButton.IsChecked = true;
-                return "Russian";
-
-            case "en":
-                enToggleButton.IsChecked = true;
-                return "English";
-
-            default:
-                return "English";
-        }
-    }
-
-    private string GetPlaceholder(TextBox textBox) {
-        switch (textBox.Name) {
-            case "vlessTextBox":
-                return Localizer.Instance["centerPanel.textBoxes.vless"];
-
-            case "resultTextBox":
-                return Localizer.Instance["centerPanel.textBoxes.result"];
-
-            default:
-                return "";
-        }
-    }
-
-    private async Task Save(string text, bool append = false) {
-        // РЕАЛИЗОВАТЬ ДОБАВЛЕНИЕ В ФАЙЛ [ СЕЙЧАС ТОЛЬКО ПЕРЕЗАПИСЬ ]
-        TopLevel? topLevel = GetTopLevel(this);
-
-        if (topLevel?.StorageProvider is null) {
-            await ShowError(Localizer.Instance["save.errors.storage"]);
-            return;
-        }
-
-        var saveOptions = new FilePickerSaveOptions {
-            Title = Localizer.Instance["save.title"],
-            DefaultExtension = ".yaml",
-            FileTypeChoices = new[] {
-                new FilePickerFileType("YAML Configuration") {
-                    Patterns = new[] { "*.yaml" },
-                    MimeTypes = new[] { "application/x-yaml", "text/yaml" }
-                }
-            }
-        };
-
-        var file = await topLevel.StorageProvider.SaveFilePickerAsync(saveOptions);
-
-        if (file is not null) {
-            try {
-                await using var stream = await file.OpenWriteAsync();
-                using var streamWriter = new StreamWriter(stream);
-                await streamWriter.WriteAsync(text);
-                saveTextBox.Text = file.Path.LocalPath;
-            }
-            catch (Exception ex) {
-                await ShowError($"{Localizer.Instance["save.errors.save"]}\n{ex.Message}");
-            }
-        }
-    }
-
-    private async Task SaveDownloadedFile(string path) {
-        TopLevel? topLevel = GetTopLevel(this);
-
-        if (topLevel?.StorageProvider is null) {
-            await ShowError(Localizer.Instance["save.errors.storage"]);
-            return;
-        }
-
-        var saveOptions = new FilePickerSaveOptions {
-            Title = Localizer.Instance["save.title"],
-            DefaultExtension = ".yaml",
-            FileTypeChoices = new[] {
-                new FilePickerFileType("YAML Configuration") {
-                    Patterns = new[] { "*.yaml" },
-                    MimeTypes = new[] { "application/x-yaml", "text/yaml" }
-                }
-            }
-        };
-
-        var file = await topLevel.StorageProvider.SaveFilePickerAsync(saveOptions);
-
-        if (file is not null) {
-            try {
-                await using (var sourceStream = File.OpenRead(path))
-                await using (var destinationStream = await file.OpenWriteAsync()) {
-                    await sourceStream.CopyToAsync(destinationStream);
-                }
-                File.Delete(path);
-            }
-            catch (Exception ex) {
-                await ShowError($"{Localizer.Instance["save.errors.save"]}\n{ex.Message}\n\n{Localizer.Instance["save.errors.toTempDirectory"]}: {path}");
-            }
-        }
-        else
-            if (File.Exists(path))
-                File.Delete(path);
-    }
-
     private async Task ShowError(string message) {
         await ErrorDialog.Show(this, message);
     }
@@ -906,7 +952,7 @@ public partial class MainWindow : Window {
     private void MainWindowClosing(object? sender, System.ComponentModel.CancelEventArgs e) {
         if (entware != null) {
             entware.Dispose();
-            System.Diagnostics.Debug.WriteLine("ROUTER DISPOSED");
+            System.Diagnostics.Debug.WriteLine("ENTWARE DISPOSED");
         }
         base.OnClosed(e);
     }

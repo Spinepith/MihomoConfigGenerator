@@ -6,7 +6,7 @@ using Avalonia.Threading;
 
 namespace XKeenMihomoGenerator.Controls;
 
-public class TextLabel : TemplatedControl {
+internal class TextLabel : TemplatedControl {
     protected override void OnApplyTemplate(TemplateAppliedEventArgs e) {
         base.OnApplyTemplate(e);
 

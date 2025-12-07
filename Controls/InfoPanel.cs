@@ -5,7 +5,7 @@ using System;
 
 namespace XKeenMihomoGenerator.Controls;
 
-public class InfoPanel : TemplatedControl {
+internal class InfoPanel : TemplatedControl {
     public static readonly RoutedEvent<RoutedEventArgs> CloseEvent = RoutedEvent.Register<InfoPanel, RoutedEventArgs>("CloseEvent", RoutingStrategies.Bubble);
     public event EventHandler<RoutedEventArgs> CloseRequested {
         add => AddHandler(CloseEvent, value);

@@ -7,11 +7,15 @@ using NetCoreAudio;
 
 namespace XKeenMihomoGenerator;
 
-public partial class ErrorDialog : Window {
+internal partial class ErrorDialog : Window {
     private Player? player;
 
     public ErrorDialog() {
         InitializeComponent();
+
+        var screen = Screens.Primary;
+        MaxWidth = screen!.Bounds.Width * 0.4;
+        MaxHeight = screen!.Bounds.Height * 0.6;
 
         Opened += (_, _) => {
             errorImage.MaxWidth = closeErrorButton.Bounds.Width;

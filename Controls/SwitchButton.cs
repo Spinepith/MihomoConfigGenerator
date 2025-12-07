@@ -6,7 +6,7 @@ using System.Linq;
 
 namespace XKeenMihomoGenerator.Controls;
 
-public class SwitchButton : ItemsControl {
+internal class SwitchButton : ItemsControl {
     public static readonly StyledProperty<bool> IsRadioProperty = AvaloniaProperty.Register<SwitchButton, bool>(nameof(IsRadio), true);
     public bool IsRadio {
         get => GetValue(IsRadioProperty);

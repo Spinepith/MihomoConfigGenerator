@@ -634,7 +634,7 @@
                 </Grid>
 
                 <Grid Grid.Row="2"
-                      x:Name="routerButtonsPanel"
+                      x:Name="entwareButtonsPanel"
                       RowDefinitions="*, *, *"
                       Margin="0, 10, 0, 0">
 				
@@ -804,7 +804,7 @@
                             Background="#6A70E0"
                             Foreground="White"
                             BorderThickness="0"
-                            Click="DisconnectRouter"/>
+                            Click="DisconnectEntware"/>
 
                     <Button Grid.Row="2"
                             x:Name="cancelBackupButton"
@@ -853,7 +853,7 @@
                                Background="White"
                                Margin="60"
                                CloseRequested="CloseSshPanel"
-                               ConnectionRequested="ConnectToRouter"/>
+                               ConnectionRequested="ConnectToEntware"/>
 
         </Grid>
 
